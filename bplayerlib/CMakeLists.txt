@@ -6,7 +6,12 @@ include_directories(src/main/cpp/include)
 add_library( # Sets the name of the library.
         native-lib
         SHARED
-        src/main/cpp/native-lib.cpp)
+        src/main/cpp/native-lib.cpp
+        src/main/cpp/MYCAudio.cpp
+        src/main/cpp/MYCFFmpeg.cpp
+        src/main/cpp/MYCJavaCallback.cpp
+
+        )
 
 
 add_library(avcodec-57 SHARED IMPORTED)
