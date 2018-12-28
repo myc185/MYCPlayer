@@ -23,11 +23,12 @@ public:
     pthread_t decodeThread;
     AVFormatContext *avFormatContext = NULL;
     MYCAudio *mycAudio = NULL;
+    MYCPlayStatus *playStatus = NULL;
 
 
 public:
 
-    MYCFFmpeg(MYCJavaCallback *callback, const char *url);
+    MYCFFmpeg(MYCPlayStatus *playStatus,MYCJavaCallback *callback, const char *url);
 
     ~MYCFFmpeg();
 

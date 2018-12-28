@@ -5,6 +5,9 @@
 #ifndef MYCPLAYER_MYCAUDIO_H
 #define MYCPLAYER_MYCAUDIO_H
 
+#include "MYCQueue.h"
+#include "MYCPlayStatus.h"
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 };
@@ -17,10 +20,12 @@ public:
 
     AVCodecParameters *codecpar = NULL;
     AVCodecContext *avCodecContext = NULL;
+    MYCQueue *queue = NULL;
+    MYCPlayStatus *playStatus = NULL;
 
 
 public:
-    MYCAudio();
+    MYCAudio(MYCPlayStatus *playStatus);
     ~MYCAudio();
 
 };

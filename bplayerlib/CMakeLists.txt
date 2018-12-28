@@ -10,6 +10,8 @@ add_library( # Sets the name of the library.
         src/main/cpp/MYCAudio.cpp
         src/main/cpp/MYCFFmpeg.cpp
         src/main/cpp/MYCJavaCallback.cpp
+        src/main/cpp/MYCPlayStatus.cpp
+        src/main/cpp/MYCQueue.cpp
 
         )
 

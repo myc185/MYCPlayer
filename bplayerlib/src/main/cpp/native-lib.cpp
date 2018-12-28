@@ -15,12 +15,14 @@ JavaVM *javaVM = NULL;
 MYCJavaCallback *callbackJava = NULL;
 MYCFFmpeg *mycfFmpeg = NULL;
 
+MYCPlayStatus *playStatus = NULL;
+
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    jint  result = -1;
+    jint result = -1;
     javaVM = vm;
     JNIEnv *env;
-    if(vm -> GetEnv((void **)(&env), JNI_VERSION_1_4) != JNI_OK) {
+    if (vm->GetEnv((void **) (&env), JNI_VERSION_1_4) != JNI_OK) {
 
         return result;
     }
@@ -67,13 +69,15 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1prepared(JNIEnv *env, jobject inst
                                                        jstring source_) {
     const char *source = env->GetStringUTFChars(source_, 0);
 
-    if(mycfFmpeg == NULL) {
+    if (mycfFmpeg == NULL) {
 
-        if(callbackJava == NULL) {
+        if (callbackJava == NULL) {
             callbackJava = new MYCJavaCallback(javaVM, env, &instance);
         }
 
-        mycfFmpeg = new MYCFFmpeg(callbackJava, source);
+        playStatus = new MYCPlayStatus();
+
+        mycfFmpeg = new MYCFFmpeg(playStatus, callbackJava, source);
         mycfFmpeg->prepard();
     }
 
@@ -84,7 +88,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_bosma_bplayerlib_player_MYCPlayer_n_1start(JNIEnv *env, jobject instance) {
 
-    if(mycfFmpeg == NULL) {
+    if (mycfFmpeg == NULL) {
         return;
     }
     mycfFmpeg->start();

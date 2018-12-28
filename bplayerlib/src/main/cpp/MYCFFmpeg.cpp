@@ -10,9 +10,10 @@ MYCFFmpeg::~MYCFFmpeg() {
 
 }
 
-MYCFFmpeg::MYCFFmpeg(MYCJavaCallback *callback, const char *url) {
+MYCFFmpeg::MYCFFmpeg(MYCPlayStatus *playStatus, MYCJavaCallback *callback, const char *url) {
     this->callbackJava = callback;
     this->url = url;
+    this->playStatus = playStatus;
 
 
 }
@@ -59,7 +60,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (mycAudio == NULL) {
-                mycAudio = new MYCAudio();
+                mycAudio = new MYCAudio(playStatus);
             }
             mycAudio->streamIndex = i;
             mycAudio->codecpar = avFormatContext->streams[i]->codecpar;
@@ -128,14 +129,14 @@ void MYCFFmpeg::start() {
                 if (LOG_DEBUG) {
                     LOGE("decode %d frame", count);
                 }
-                av_packet_free(&avPacket);
-                av_free(avPacket);
-                avPacket = NULL;
+                mycAudio->queue->putAvpacket(avPacket);
+
             } else {
                 av_packet_free(&avPacket);
                 av_free(avPacket);
                 avPacket = NULL;
             }
+
 
         } else {
             av_packet_free(&avPacket);
@@ -143,6 +144,20 @@ void MYCFFmpeg::start() {
             avPacket = NULL;
             break;
         }
+    }
+
+    //测试出队
+    while (mycAudio->queue->getQueueSize() > 0) {
+        AVPacket *packet = av_packet_alloc();
+        mycAudio->queue->getAvpacket(packet);
+        //取出，packet 的引用
+        av_packet_free(&packet);
+        av_free(packet);
+        packet = NULL;
+    }
+
+    if (LOG_DEBUG) {
+        LOGD("解码完成！");
     }
 
 }

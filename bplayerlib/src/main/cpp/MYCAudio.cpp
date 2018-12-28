@@ -4,10 +4,14 @@
 
 #include "MYCAudio.h"
 
+
+MYCAudio::MYCAudio(MYCPlayStatus *playStatus) {
+    this->playStatus = playStatus;
+    this->queue = new MYCQueue(playStatus);
+
+}
+
 MYCAudio::~MYCAudio() {
 
 }
 
-MYCAudio::MYCAudio() {
-
-}
