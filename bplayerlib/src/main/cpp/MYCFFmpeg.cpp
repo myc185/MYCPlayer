@@ -60,7 +60,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (mycAudio == NULL) {
-                mycAudio = new MYCAudio(playStatus);
+                mycAudio = new MYCAudio(playStatus, avFormatContext->streams[i]->codecpar->sample_rate);
             }
             mycAudio->streamIndex = i;
             mycAudio->codecpar = avFormatContext->streams[i]->codecpar;

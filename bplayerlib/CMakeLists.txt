@@ -70,4 +70,5 @@ target_link_libraries( # Specifies the target library.
         avformat-57
         postproc-54
         swscale-4
+        OpenSLES
         log)
