@@ -113,7 +113,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
 
 void MYCFFmpeg::start() {
 
-    if(mycAudio == NULL) {
+    if (mycAudio == NULL) {
         if (LOG_DEBUG) {
             LOGE("audio is null");
         }
@@ -122,9 +122,9 @@ void MYCFFmpeg::start() {
     int count = 0;
     while (1) {
         AVPacket *avPacket = av_packet_alloc();
-        if(av_read_frame(avFormatContext, avPacket) == 0) {
+        if (av_read_frame(avFormatContext, avPacket) == 0) {
 
-            if(avPacket->stream_index == mycAudio-> streamIndex) {
+            if (avPacket->stream_index == mycAudio->streamIndex) {
                 count++;
                 if (LOG_DEBUG) {
                     LOGE("decode %d frame", count);

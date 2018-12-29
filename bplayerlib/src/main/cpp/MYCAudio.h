@@ -23,10 +23,19 @@ public:
     MYCQueue *queue = NULL;
     MYCPlayStatus *playStatus = NULL;
 
+    pthread_t thread_play;
+    AVPacket *avPacket = NULL;
+    int ret = -1;
+
 
 public:
     MYCAudio(MYCPlayStatus *playStatus);
+
     ~MYCAudio();
+
+    void play();
+
+    int resampleAudio();
 
 };
 
