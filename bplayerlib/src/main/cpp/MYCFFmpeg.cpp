@@ -119,8 +119,13 @@ void MYCFFmpeg::start() {
         }
         return;
     }
+
+    //刚开始解码是没数据的，但是获取数据的时候会阻塞，因此可以在这里提前调用
+    mycAudio->play();
+
+
     int count = 0;
-    while (1) {
+    while (playStatus != NULL && !playStatus->exit) {
         AVPacket *avPacket = av_packet_alloc();
         if (av_read_frame(avFormatContext, avPacket) == 0) {
 
@@ -142,22 +147,21 @@ void MYCFFmpeg::start() {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+
+            //释放缓存
+            while (playStatus != NULL && !playStatus->exit) {
+                if (mycAudio->queue->getQueueSize() > 0) {
+                    continue;
+                } else {
+                    playStatus->exit = true;
+                    break;
+                }
+
+            }
             break;
         }
     }
 
-    //测试出队
-    while (mycAudio->queue->getQueueSize() > 0) {
-        AVPacket *packet = av_packet_alloc();
-        mycAudio->queue->getAvpacket(packet);
-        //取出，packet 的引用
-        av_packet_free(&packet);
-        av_free(packet);
-        packet = NULL;
-    }
-
-    if (LOG_DEBUG) {
-        LOGD("解码完成！");
-    }
+    LOGD("解码完成！")
 
 }

@@ -8,8 +8,10 @@
 #include "MYCQueue.h"
 #include "MYCPlayStatus.h"
 
+
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libswresample/swresample.h>
 };
 
 class MYCAudio {
@@ -25,7 +27,12 @@ public:
 
     pthread_t thread_play;
     AVPacket *avPacket = NULL;
+    AVFrame *avFrame = NULL;
     int ret = -1;
+
+    uint8_t  *buffer = NULL;
+
+    int data_size = 0;
 
 
 public:
