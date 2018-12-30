@@ -20,8 +20,9 @@ public:
     JNIEnv *jniEnv = NULL;
     jobject jobj;
     jmethodID jmid_prepared;
-
     jmethodID  jmid_load;
+    jmethodID  jmid_timeinfo;
+
 
 
 public:
@@ -32,6 +33,7 @@ public:
     void onCallPrepared(int type);
 
     void onCallLoad(int type, bool load);
+    void onCallTimeInfo(int type, int current, int total);
 
 
 };

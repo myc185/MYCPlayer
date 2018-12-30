@@ -11,6 +11,7 @@
 
 extern "C" {
 #include <libavformat/avformat.h>
+#include <libavutil/time.h>
 };
 
 
@@ -24,6 +25,9 @@ public:
     AVFormatContext *avFormatContext = NULL;
     MYCAudio *mycAudio = NULL;
     MYCPlayStatus *playStatus = NULL;
+
+    pthread_mutex_t init_mutex;
+    bool exit = false;
 
 
 public:
@@ -41,6 +45,8 @@ public:
     void pause();
 
     void resume();
+
+    void release();
 
 };
 

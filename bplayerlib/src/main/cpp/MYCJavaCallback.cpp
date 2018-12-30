@@ -20,6 +20,7 @@ MYCJavaCallback::MYCJavaCallback(JavaVM *jvm, JNIEnv *env, jobject *obj) {
 
     this->jmid_prepared = env->GetMethodID(jclz, "onCallPrepared", "()V");
     this->jmid_load = env->GetMethodID(jclz, "onCallLoad", "(Z)V");
+    this->jmid_timeinfo = env->GetMethodID(jclz, "onCallTimeInfo", "(II)V");
 
 
 }
@@ -58,6 +59,23 @@ void MYCJavaCallback::onCallLoad(int type, bool load) {
             return;
         }
         jniEn->CallVoidMethod(jobj, jmid_load, load);
+        javaVM->DetachCurrentThread();
+    }
+
+}
+
+void MYCJavaCallback::onCallTimeInfo(int type, int current, int total) {
+    if (type == THREAD_MAIN) {
+        jniEnv->CallVoidMethod(jobj, jmid_timeinfo, current, total);
+    } else if (type == THREAD_CHILD) {
+        JNIEnv *jniEn;
+        if (javaVM->AttachCurrentThread(&jniEn, 0) != JNI_OK) {
+            if (LOG_DEBUG) {
+                LOGE("Get child thread jnienv error");
+            }
+            return;
+        }
+        jniEn->CallVoidMethod(jobj, jmid_timeinfo, current, total);
         javaVM->DetachCurrentThread();
     }
 

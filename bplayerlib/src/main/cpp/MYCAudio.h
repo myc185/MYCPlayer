@@ -37,6 +37,14 @@ public:
     uint8_t *buffer = NULL;
     int data_size = 0;
     int sample_rate = 0;
+    //总长度
+    int duration = 0;
+
+    AVRational time_base;
+
+    double now_time = 0;
+    double clock = 0;
+    double last_time = 0;
 
 
     //引擎接口
@@ -73,6 +81,9 @@ public:
 
     void resume();
 
+    void stop();
+
+    void release();
 };
 
 

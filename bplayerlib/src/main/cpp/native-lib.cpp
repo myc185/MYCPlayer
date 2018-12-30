@@ -117,3 +117,24 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1resume(JNIEnv *env, jobject instan
 
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance) {
+
+    if (mycfFmpeg != NULL) {
+        mycfFmpeg->release();
+        delete (mycfFmpeg);
+        mycfFmpeg = NULL;
+        if (callbackJava != NULL) {
+            delete (callbackJava);
+            callbackJava = NULL;
+        }
+
+        if (playStatus != NULL) {
+            delete (playStatus);
+            playStatus = NULL;
+        }
+    }
+
+}

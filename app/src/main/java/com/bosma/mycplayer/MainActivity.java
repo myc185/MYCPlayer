@@ -1,10 +1,13 @@
 package com.bosma.mycplayer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,23 +17,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bosma.bplayerlib.Demo;
+import com.bosma.bplayerlib.bean.TimeInfoBean;
 import com.bosma.bplayerlib.listener.OnLoadListener;
 import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
+import com.bosma.bplayerlib.listener.OnTimeInfoListener;
 import com.bosma.bplayerlib.log.MyLog;
 import com.bosma.bplayerlib.player.MYCPlayer;
+import com.bosma.bplayerlib.util.TimeUtil;
 
 import java.io.File;
+import java.sql.Time;
 
 public class MainActivity extends AppCompatActivity {
 
     private MYCPlayer mycPlayer;
     private int MY_PERMISSIONS_REQUEST_CALL_SDCARD = 100;
+    private TextView mTvTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mTvTime = findViewById(R.id.tv_time);
+
         mycPlayer = new MYCPlayer();
 
         mycPlayer.setOnPreparedListener(new OnPreparedListener() {
@@ -64,6 +74,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mycPlayer.setOnTimeinfoListener(new OnTimeInfoListener() {
+            @Override
+            public void onTImeInfo(TimeInfoBean timeInfoBean) {
+//                MyLog.d(timeInfoBean.toString());
+                Message message = Message.obtain();
+                message.what = 1;
+                message.obj = timeInfoBean;
+                handler.sendMessage(message);
+
+            }
+
+        });
+
     }
 
     public void prepared(View view) {
@@ -79,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+//        mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+//        mycPlayer.setSource("http://ngcdn004.ncr.cn/live/dszs/index.m3u8");
+        mycPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 //        String path = getInnerSDCardPath() + "/mydream.m4a";
 //        // /storage/emulated/0/mydream.m4a
 //        MyLog.d(path);
@@ -125,5 +150,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void resume(View view) {
         mycPlayer.onResume();
+    }
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 1) {
+                TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
+
+                mTvTime.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime()) +"/" +TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+
+            }
+        }
+    };
+
+    public void stop(View view) {
+        mycPlayer.onStop();
+
     }
 }

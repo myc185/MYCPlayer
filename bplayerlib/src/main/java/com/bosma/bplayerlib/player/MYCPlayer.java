@@ -2,9 +2,11 @@ package com.bosma.bplayerlib.player;
 
 import android.text.TextUtils;
 
+import com.bosma.bplayerlib.bean.TimeInfoBean;
 import com.bosma.bplayerlib.listener.OnLoadListener;
 import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
+import com.bosma.bplayerlib.listener.OnTimeInfoListener;
 import com.bosma.bplayerlib.log.MyLog;
 
 /**
@@ -35,6 +37,9 @@ public class MYCPlayer {
     private OnLoadListener onLoadListener;
 
     private OnPauseResumeListener onPauseResumeListener;
+    private OnTimeInfoListener onTimeinfoListener;
+
+    private static TimeInfoBean timeInfoBean;
 
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
@@ -47,6 +52,10 @@ public class MYCPlayer {
 
     public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
         this.onPauseResumeListener = onPauseResumeListener;
+    }
+
+    public void setOnTimeinfoListener(OnTimeInfoListener onTimeinfoListener) {
+        this.onTimeinfoListener = onTimeinfoListener;
     }
 
     public MYCPlayer() {
@@ -102,6 +111,16 @@ public class MYCPlayer {
         }
     }
 
+    public void onStop() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                n_stop();
+            }
+        }).start();
+
+    }
+
     public void onCallLoad(boolean load) {
         if (onLoadListener != null) {
             onLoadListener.onLoad(load);
@@ -115,6 +134,19 @@ public class MYCPlayer {
         }
     }
 
+    public void onCallTimeInfo(int currentTime, int totalTime) {
+        if (onTimeinfoListener != null) {
+            if (timeInfoBean == null) {
+                timeInfoBean = new TimeInfoBean();
+            }
+
+            timeInfoBean.setCurrentTime(currentTime);
+            timeInfoBean.setTotalTime(totalTime);
+            onTimeinfoListener.onTImeInfo(timeInfoBean);
+        }
+
+    }
+
     private native void n_prepared(String source);
 
     private native void n_start();
@@ -122,6 +154,7 @@ public class MYCPlayer {
     private native void n_pause();
 
     private native void n_resume();
+    private native void n_stop();
 
 
 }

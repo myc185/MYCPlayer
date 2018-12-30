@@ -123,6 +123,13 @@ int MYCAudio::resampleAudio() {
             data_size = nb * out_channels * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 
 
+            //获取播放事件
+            now_time = avFrame->pts * av_q2d(time_base);
+            if (now_time < clock) {
+                now_time = clock;
+            }
+            clock = now_time;
+
 //            fwrite(buffer, 1, data_size, outFile);//保存文件
             if (LOG_DEBUG) {
 //                LOGD("data size is %d : ", data_size);
@@ -164,6 +171,14 @@ void pcmBufferCallback(SLAndroidSimpleBufferQueueItf buf, void *context) {
     if (mycAudio != NULL) {
         int buffer_size = mycAudio->resampleAudio();
         if (buffer_size > 0) {
+            mycAudio->clock += buffer_size / ((double) (mycAudio->sample_rate * 2 * 2));
+            if (mycAudio->clock - mycAudio->last_time > 0.1) {
+                mycAudio->last_time = mycAudio->clock;
+                mycAudio->javaCallback->onCallTimeInfo(THREAD_CHILD, mycAudio->clock,
+                                                       mycAudio->duration);
+            }
+
+            //回调时间
             (*mycAudio->pcmBufferQueue)->Enqueue(mycAudio->pcmBufferQueue, mycAudio->buffer,
                                                  buffer_size);
         }
@@ -298,5 +313,64 @@ void MYCAudio::resume() {
     if (pcmPlayerPlay != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
     }
+}
+
+void MYCAudio::stop() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_STOPPED);
+    }
+
+}
+
+void MYCAudio::release() {
+
+    stop();
+    if (queue != NULL) {
+        delete (queue);
+        queue = NULL;
+    }
+
+    if(pcmPlayerObject != NULL) {
+        (*pcmPlayerObject)->Destroy(pcmPlayerObject);
+        pcmPlayerObject = NULL;
+        pcmPlayerPlay = NULL;
+        pcmBufferQueue = NULL;
+    }
+
+    if(outputMixObject != NULL) {
+
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+        outputMixEnvironmentReverb = NULL;
+
+    }
+
+    if(engineObject != NULL) {
+
+        (*engineObject)->Destroy(engineObject);
+        engineObject = NULL;
+        engineEngine = NULL;
+
+    }
+
+    if(buffer != NULL) {
+        free(buffer);
+        buffer = NULL;
+    }
+
+    if(avCodecContext != NULL) {
+        avcodec_close(avCodecContext);
+        avcodec_free_context(&avCodecContext);
+        avCodecContext = NULL;
+    }
+
+    if(playStatus != NULL) {
+        playStatus = NULL;
+    }
+
+    if(javaCallback != NULL) {
+        javaCallback = NULL;
+    }
+
 }
 

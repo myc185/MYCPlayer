@@ -14,6 +14,7 @@ MYCQueue::MYCQueue(MYCPlayStatus *playStatus) {
 
 MYCQueue::~MYCQueue() {
 
+    clearAvPacket();
     //释放
     pthread_mutex_destroy(&mutexPacket);
     pthread_cond_destroy(&condPacket);
@@ -72,5 +73,23 @@ int MYCQueue::getQueueSize() {
 
     pthread_mutex_unlock(&mutexPacket);
     return size;
+}
+
+void MYCQueue::clearAvPacket() {
+
+    pthread_cond_signal(&condPacket);
+    pthread_mutex_lock(&mutexPacket);
+
+    while (!queuePacket.empty()) {
+        AVPacket *packet = queuePacket.front();
+        queuePacket.pop();
+        av_packet_free(&packet);
+        av_free(packet);
+        packet = NULL;
+    }
+
+
+    pthread_mutex_unlock(&mutexPacket);
+
 }
 
