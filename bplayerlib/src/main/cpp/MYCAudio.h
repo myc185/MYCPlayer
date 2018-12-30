@@ -9,6 +9,7 @@
 #include "MYCPlayStatus.h"
 #include <SLES/OpenSLES_Android.h>
 #include <SLES/OpenSLES.h>
+#include "MYCJavaCallback.h"
 
 
 extern "C" {
@@ -26,6 +27,7 @@ public:
     AVCodecContext *avCodecContext = NULL;
     MYCQueue *queue = NULL;
     MYCPlayStatus *playStatus = NULL;
+    MYCJavaCallback *javaCallback = NULL;
 
     pthread_t thread_play;
     AVPacket *avPacket = NULL;
@@ -55,7 +57,7 @@ public:
 
 
 public:
-    MYCAudio(MYCPlayStatus *playStatus, int sample_rate);
+    MYCAudio(MYCPlayStatus *playStatus, int sample_rate, MYCJavaCallback *callback);
 
     ~MYCAudio();
 
@@ -66,6 +68,10 @@ public:
     void initOpenSLES();
 
     int getCurrentSampleRateForOpensles(int sample_rate);
+
+    void puase();
+
+    void resume();
 
 };
 

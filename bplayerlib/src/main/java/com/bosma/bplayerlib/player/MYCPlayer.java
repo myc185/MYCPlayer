@@ -2,6 +2,8 @@ package com.bosma.bplayerlib.player;
 
 import android.text.TextUtils;
 
+import com.bosma.bplayerlib.listener.OnLoadListener;
+import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
 import com.bosma.bplayerlib.log.MyLog;
 
@@ -30,9 +32,21 @@ public class MYCPlayer {
 
     private OnPreparedListener onPreparedListener;
 
+    private OnLoadListener onLoadListener;
+
+    private OnPauseResumeListener onPauseResumeListener;
+
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
+    }
+
+    public void setOnLoadListener(OnLoadListener onLoadListener) {
+        this.onLoadListener = onLoadListener;
+    }
+
+    public void setOnPauseResumeListener(OnPauseResumeListener onPauseResumeListener) {
+        this.onPauseResumeListener = onPauseResumeListener;
     }
 
     public MYCPlayer() {
@@ -48,6 +62,8 @@ public class MYCPlayer {
             MyLog.d("source is empty");
             return;
         }
+
+        onCallLoad(true);
 
         new Thread(new Runnable() {
             @Override
@@ -72,15 +88,40 @@ public class MYCPlayer {
 
     }
 
-    public native void n_prepared(String source);
+    public void onPause() {
+        n_pause();
+        if (onPauseResumeListener != null) {
+            onPauseResumeListener.onPuase(true);
+        }
+    }
 
-    public native void n_start();
+    public void onResume() {
+        n_resume();
+        if (onPauseResumeListener != null) {
+            onPauseResumeListener.onPuase(false);
+        }
+    }
+
+    public void onCallLoad(boolean load) {
+        if (onLoadListener != null) {
+            onLoadListener.onLoad(load);
+        }
+    }
+
 
     public void onCallPrepared() {
-        if(onPreparedListener != null) {
+        if (onPreparedListener != null) {
             onPreparedListener.onPrepared();
         }
     }
+
+    private native void n_prepared(String source);
+
+    private native void n_start();
+
+    private native void n_pause();
+
+    private native void n_resume();
 
 
 }

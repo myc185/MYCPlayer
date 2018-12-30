@@ -11,7 +11,21 @@
         android:id="@+id/btn_prepared"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Prepared"
+        android:text="start"
         android:onClick="prepared"/>
+
+    <Button
+        android:id="@+id/btn_pause"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pause"
+        android:onClick="pause"/>
+
+    <Button
+        android:id="@+id/btn_resume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Play"
+        android:onClick="resume"/>
 
 </LinearLayout>

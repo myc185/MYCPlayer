@@ -5,11 +5,12 @@
 #include "MYCAudio.h"
 
 
-MYCAudio::MYCAudio(MYCPlayStatus *playStatus, int sample_rate) {
+MYCAudio::MYCAudio(MYCPlayStatus *playStatus, int sample_rate, MYCJavaCallback *callback) {
     this->playStatus = playStatus;
+    this->javaCallback = callback;
     this->queue = new MYCQueue(playStatus);
     this->sample_rate = sample_rate;
-    buffer = static_cast<uint8_t *>(av_malloc(44100 * 2 * 2));
+    buffer = static_cast<uint8_t *>(av_malloc(sample_rate * 2 * 2));
 
 }
 
@@ -41,6 +42,22 @@ void MYCAudio::play() {
 int MYCAudio::resampleAudio() {
 
     while (playStatus != NULL && !playStatus->exit) {
+
+
+        if (queue->getQueueSize() == 0) {
+            if (!playStatus->load) {
+                playStatus->load = true;
+                javaCallback->onCallLoad(THREAD_CHILD, true);
+            }
+
+        } else {
+            if (playStatus->load) {
+                playStatus->load = false;
+                javaCallback->onCallLoad(THREAD_CHILD, false);
+            }
+        }
+
+
         avPacket = av_packet_alloc();
         if (queue->getAvpacket(avPacket) != 0) {
             av_packet_free(&avPacket);
@@ -108,7 +125,7 @@ int MYCAudio::resampleAudio() {
 
 //            fwrite(buffer, 1, data_size, outFile);//保存文件
             if (LOG_DEBUG) {
-                LOGD("data size is %d : ", data_size);
+//                LOGD("data size is %d : ", data_size);
             }
 
             av_packet_free(&avPacket);
@@ -267,5 +284,19 @@ int MYCAudio::getCurrentSampleRateForOpensles(int sample_rate) {
 
 
     return rate;
+}
+
+void MYCAudio::puase() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
+    }
+
+
+}
+
+void MYCAudio::resume() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
 }
 

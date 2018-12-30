@@ -93,3 +93,27 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1start(JNIEnv *env, jobject instanc
     }
     mycfFmpeg->start();
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1pause(JNIEnv *env, jobject instance) {
+
+    if (mycfFmpeg == NULL) {
+        return;
+    }
+    mycfFmpeg->pause();
+
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1resume(JNIEnv *env, jobject instance) {
+
+    if (mycfFmpeg == NULL) {
+        return;
+    }
+    mycfFmpeg->resume();
+
+
+}

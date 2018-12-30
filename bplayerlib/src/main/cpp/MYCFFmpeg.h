@@ -35,7 +35,12 @@ public:
     void prepard();
 
     void decodeFFmpegThread();
+
     void start();
+
+    void pause();
+
+    void resume();
 
 };
 

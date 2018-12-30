@@ -26,7 +26,7 @@ int MYCQueue::putAvpacket(AVPacket *packet) {
 
     queuePacket.push(packet);
     if (LOG_DEBUG) {
-        LOGD("put an avpacket to queue, number : %d ", queuePacket.size());
+//        LOGD("put an avpacket to queue, number : %d ", queuePacket.size());
     }
 
     pthread_cond_signal(&condPacket);
@@ -50,7 +50,7 @@ int MYCQueue::getAvpacket(AVPacket *packet) {
             av_free(avPacket);
             avPacket = NULL;
             if (LOG_DEBUG) {
-                LOGD("GET an avpacket from queue, left number  :  %d", queuePacket.size());
+//                LOGD("GET an avpacket from queue, left number  :  %d", queuePacket.size());
             }
             break;
 

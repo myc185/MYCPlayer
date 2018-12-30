@@ -21,6 +21,8 @@ public:
     jobject jobj;
     jmethodID jmid_prepared;
 
+    jmethodID  jmid_load;
+
 
 public:
 
@@ -28,6 +30,8 @@ public:
     ~MYCJavaCallback();
 
     void onCallPrepared(int type);
+
+    void onCallLoad(int type, bool load);
 
 
 };

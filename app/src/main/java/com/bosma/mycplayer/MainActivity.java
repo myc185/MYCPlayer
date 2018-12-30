@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bosma.bplayerlib.Demo;
+import com.bosma.bplayerlib.listener.OnLoadListener;
+import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
 import com.bosma.bplayerlib.log.MyLog;
 import com.bosma.bplayerlib.player.MYCPlayer;
@@ -39,6 +41,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mycPlayer.setOnLoadListener(new OnLoadListener() {
+            @Override
+            public void onLoad(boolean load) {
+                if(load) {
+                    MyLog.d("加载中...");
+                } else {
+                    MyLog.d("播放中...");
+                }
+            }
+        });
+
+        mycPlayer.setOnPauseResumeListener(new OnPauseResumeListener() {
+            @Override
+            public void onPuase(boolean pause) {
+                if(pause) {
+                    MyLog.d("暂停中...");
+                } else {
+                    MyLog.d("播放中...");
+                }
+
+            }
+        });
+
     }
 
     public void prepared(View view) {
@@ -55,13 +80,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
-        String path = getInnerSDCardPath() + "/mydream.m4a";
-        // /storage/emulated/0/mydream.m4a
-        MyLog.d(path);
-        File file = new File(path);
-        if (file.exists()) {
-            mycPlayer.setSource(path);
-        }
+//        String path = getInnerSDCardPath() + "/mydream.m4a";
+//        // /storage/emulated/0/mydream.m4a
+//        MyLog.d(path);
+//        File file = new File(path);
+//        if (file.exists()) {
+//            mycPlayer.setSource(path);
+//        }
+
         mycPlayer.prepared();
 
     }
@@ -92,4 +118,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, string, Toast.LENGTH_LONG).show();
     }
 
+    public void pause(View view) {
+        mycPlayer.onPause();
+
+    }
+
+    public void resume(View view) {
+        mycPlayer.onResume();
+    }
 }

@@ -11,11 +11,12 @@ class MYCPlayStatus {
 public:
 
     bool exit;
+    bool load = true;
 
 public:
     MYCPlayStatus();
-    ~MYCPlayStatus();
 
+    ~MYCPlayStatus();
 
 
 };

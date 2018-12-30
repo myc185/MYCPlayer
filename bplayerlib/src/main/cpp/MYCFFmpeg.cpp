@@ -60,7 +60,9 @@ void MYCFFmpeg::decodeFFmpegThread() {
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (mycAudio == NULL) {
-                mycAudio = new MYCAudio(playStatus, avFormatContext->streams[i]->codecpar->sample_rate);
+                mycAudio = new MYCAudio(playStatus,
+                                        avFormatContext->streams[i]->codecpar->sample_rate,
+                                        callbackJava);
             }
             mycAudio->streamIndex = i;
             mycAudio->codecpar = avFormatContext->streams[i]->codecpar;
@@ -132,7 +134,7 @@ void MYCFFmpeg::start() {
             if (avPacket->stream_index == mycAudio->streamIndex) {
                 count++;
                 if (LOG_DEBUG) {
-                    LOGE("decode %d frame", count);
+//                    LOGE("decode %d frame", count);
                 }
                 mycAudio->queue->putAvpacket(avPacket);
 
@@ -164,4 +166,18 @@ void MYCFFmpeg::start() {
 
     LOGD("解码完成！")
 
+}
+
+void MYCFFmpeg::pause() {
+
+    if (mycAudio != NULL) {
+        mycAudio->puase();
+    }
+
+}
+
+void MYCFFmpeg::resume() {
+    if (mycAudio != NULL) {
+        mycAudio->resume();
+    }
 }
