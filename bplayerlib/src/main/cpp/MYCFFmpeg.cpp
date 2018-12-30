@@ -68,6 +68,9 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot open url : %s ", url);
         }
+
+
+        callbackJava->onCallError(THREAD_CHILD, 1001, "can not open url");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         av_dict_free(&opts);
@@ -83,6 +86,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot find stream from url : %s ", url);
         }
+        callbackJava->onCallError(THREAD_CHILD, 1002, "cannot find stream from url");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
         return;
@@ -108,6 +112,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot find decoder");
         }
+        callbackJava->onCallError(THREAD_CHILD, 1003, "cannot find decoder");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
 
@@ -119,6 +124,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot find decoder");
         }
+        callbackJava->onCallError(THREAD_CHILD, 1004, "cannot find decoder");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
 
@@ -131,6 +137,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot alloc new decoder ctx");
         }
+        callbackJava->onCallError(THREAD_CHILD, 1005, "cannot alloc new decoder ctx");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
 
@@ -142,6 +149,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot fill decoder ctx");
         }
+        callbackJava->onCallError(THREAD_CHILD, 1006, "cannot fill decoder ctx");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
 
@@ -153,6 +161,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
         if (LOG_DEBUG) {
             LOGE("cannot open audio stream");
         }
+        callbackJava->onCallError(THREAD_CHILD, 1007, "cannot open audio stream");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
 
@@ -170,6 +179,7 @@ void MYCFFmpeg::start() {
         if (LOG_DEBUG) {
             LOGE("audio is null");
         }
+        callbackJava->onCallError(THREAD_CHILD, 1008, "audio is null");
         return;
     }
 

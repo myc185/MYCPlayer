@@ -3,6 +3,7 @@ package com.bosma.bplayerlib.player;
 import android.text.TextUtils;
 
 import com.bosma.bplayerlib.bean.TimeInfoBean;
+import com.bosma.bplayerlib.listener.OnErrorListener;
 import com.bosma.bplayerlib.listener.OnLoadListener;
 import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
@@ -38,6 +39,7 @@ public class MYCPlayer {
 
     private OnPauseResumeListener onPauseResumeListener;
     private OnTimeInfoListener onTimeinfoListener;
+    private OnErrorListener onErrorListener;
 
     private static TimeInfoBean timeInfoBean;
 
@@ -58,6 +60,10 @@ public class MYCPlayer {
         this.onTimeinfoListener = onTimeinfoListener;
     }
 
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
+    }
+
     public MYCPlayer() {
 
     }
@@ -71,8 +77,6 @@ public class MYCPlayer {
             MyLog.d("source is empty");
             return;
         }
-
-        onCallLoad(true);
 
         new Thread(new Runnable() {
             @Override
@@ -147,6 +151,14 @@ public class MYCPlayer {
 
     }
 
+    public void onCallError(int code, String msg) {
+        n_stop();
+        if (onErrorListener != null) {
+            onErrorListener.onError(code, msg);
+        }
+
+    }
+
     private native void n_prepared(String source);
 
     private native void n_start();
@@ -154,6 +166,7 @@ public class MYCPlayer {
     private native void n_pause();
 
     private native void n_resume();
+
     private native void n_stop();
 
 

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bosma.bplayerlib.Demo;
 import com.bosma.bplayerlib.bean.TimeInfoBean;
+import com.bosma.bplayerlib.listener.OnErrorListener;
 import com.bosma.bplayerlib.listener.OnLoadListener;
 import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         mycPlayer.setOnLoadListener(new OnLoadListener() {
             @Override
             public void onLoad(boolean load) {
-                if(load) {
+                if (load) {
                     MyLog.d("加载中...");
                 } else {
                     MyLog.d("播放中...");
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         mycPlayer.setOnPauseResumeListener(new OnPauseResumeListener() {
             @Override
             public void onPuase(boolean pause) {
-                if(pause) {
+                if (pause) {
                     MyLog.d("暂停中...");
                 } else {
                     MyLog.d("播放中...");
@@ -85,6 +86,13 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+        });
+
+        mycPlayer.setOnErrorListener(new OnErrorListener() {
+            @Override
+            public void onError(int code, String msg) {
+                MyLog.d("[" + code + "] : " + msg);
+            }
         });
 
     }
@@ -158,10 +166,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if(msg.what == 1) {
+            if (msg.what == 1) {
                 TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
 
-                mTvTime.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime()) +"/" +TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+                mTvTime.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime()) + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
 
             }
         }
@@ -170,5 +178,13 @@ public class MainActivity extends AppCompatActivity {
     public void stop(View view) {
         mycPlayer.onStop();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mycPlayer != null) {
+            mycPlayer.onStop();
+        }
     }
 }

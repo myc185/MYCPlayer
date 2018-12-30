@@ -17,6 +17,8 @@ MYCFFmpeg *mycfFmpeg = NULL;
 
 MYCPlayStatus *playStatus = NULL;
 
+bool nexit = true;
+
 extern "C"
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     jint result = -1;
@@ -74,7 +76,7 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1prepared(JNIEnv *env, jobject inst
         if (callbackJava == NULL) {
             callbackJava = new MYCJavaCallback(javaVM, env, &instance);
         }
-
+        callbackJava->onCallLoad(THREAD_MAIN, true);
         playStatus = new MYCPlayStatus();
 
         mycfFmpeg = new MYCFFmpeg(playStatus, callbackJava, source);
@@ -122,6 +124,10 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance) {
 
+    if (!nexit) {
+        return;
+    }
+    nexit = false;
     if (mycfFmpeg != NULL) {
         mycfFmpeg->release();
         delete (mycfFmpeg);
@@ -136,5 +142,6 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance
             playStatus = NULL;
         }
     }
+    nexit = true;
 
 }

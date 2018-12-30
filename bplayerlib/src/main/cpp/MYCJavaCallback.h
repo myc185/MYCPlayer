@@ -5,8 +5,9 @@
 #ifndef MYCPLAYER_MYCJAVACALLBACK_H
 #define MYCPLAYER_MYCJAVACALLBACK_H
 
-#include <cwchar>
+
 #include "jni.h"
+#include <linux/stddef.h>
 #include "AndroidLog.h"
 
 #define THREAD_MAIN 0
@@ -22,6 +23,7 @@ public:
     jmethodID jmid_prepared;
     jmethodID  jmid_load;
     jmethodID  jmid_timeinfo;
+    jmethodID  jmid_error;
 
 
 
@@ -34,7 +36,7 @@ public:
 
     void onCallLoad(int type, bool load);
     void onCallTimeInfo(int type, int current, int total);
-
+    void onCallError(int type, int code, char *smg);
 
 };
 
