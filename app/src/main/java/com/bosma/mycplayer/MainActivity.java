@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void stop(View view) {
+
         mycPlayer.onStop();
 
     }
@@ -198,5 +199,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void seek(View view) {
         mycPlayer.seek(215);
+    }
+
+    public void next(View view) {
+        mycPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+
+
     }
 }

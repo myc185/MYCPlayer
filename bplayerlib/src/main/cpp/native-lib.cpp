@@ -134,6 +134,10 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance
     if (!nexit) {
         return;
     }
+
+    jclass jlz = env->GetObjectClass(instance);
+    jmethodID jmid_next = env->GetMethodID(jlz, "onCallNext","()V");
+
     nexit = false;
     if (mycfFmpeg != NULL) {
         mycfFmpeg->release();
@@ -150,6 +154,7 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance
         }
     }
     nexit = true;
+    env->CallVoidMethod(instance, jmid_next);//播放下一曲
 
 }
 

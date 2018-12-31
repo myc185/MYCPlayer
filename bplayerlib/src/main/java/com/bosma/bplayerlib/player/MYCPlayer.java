@@ -32,7 +32,9 @@ public class MYCPlayer {
 
     }
 
-    private String source;
+    private static String source;
+
+    private static boolean playNext = false;
 
     private OnPreparedListener onPreparedListener;
 
@@ -122,6 +124,7 @@ public class MYCPlayer {
     }
 
     public void onStop() {
+        timeInfoBean = null;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -134,6 +137,12 @@ public class MYCPlayer {
     public void seek(int seconds) {
         n_seek(seconds);
 
+    }
+
+    public void playNext(String url) {
+        source = url;
+        playNext = true;
+        onStop();
     }
 
     public void onCallLoad(boolean load) {
@@ -172,8 +181,15 @@ public class MYCPlayer {
 
     public void onCallComplete() {
         onStop();
-        if(onCompleteListener != null) {
+        if (onCompleteListener != null) {
             onCompleteListener.onComplete();
+        }
+    }
+
+    public void onCallNext() {
+        if (playNext) {
+            playNext = false;
+            prepared();
         }
     }
 
