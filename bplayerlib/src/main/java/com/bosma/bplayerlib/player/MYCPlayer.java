@@ -3,6 +3,7 @@ package com.bosma.bplayerlib.player;
 import android.text.TextUtils;
 
 import com.bosma.bplayerlib.bean.TimeInfoBean;
+import com.bosma.bplayerlib.listener.OnCompleteListener;
 import com.bosma.bplayerlib.listener.OnErrorListener;
 import com.bosma.bplayerlib.listener.OnLoadListener;
 import com.bosma.bplayerlib.listener.OnPauseResumeListener;
@@ -40,6 +41,7 @@ public class MYCPlayer {
     private OnPauseResumeListener onPauseResumeListener;
     private OnTimeInfoListener onTimeinfoListener;
     private OnErrorListener onErrorListener;
+    private OnCompleteListener onCompleteListener;
 
     private static TimeInfoBean timeInfoBean;
 
@@ -62,6 +64,10 @@ public class MYCPlayer {
 
     public void setOnErrorListener(OnErrorListener onErrorListener) {
         this.onErrorListener = onErrorListener;
+    }
+
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
+        this.onCompleteListener = onCompleteListener;
     }
 
     public MYCPlayer() {
@@ -125,6 +131,11 @@ public class MYCPlayer {
 
     }
 
+    public void seek(int seconds) {
+        n_seek(seconds);
+
+    }
+
     public void onCallLoad(boolean load) {
         if (onLoadListener != null) {
             onLoadListener.onLoad(load);
@@ -159,6 +170,13 @@ public class MYCPlayer {
 
     }
 
+    public void onCallComplete() {
+        onStop();
+        if(onCompleteListener != null) {
+            onCompleteListener.onComplete();
+        }
+    }
+
     private native void n_prepared(String source);
 
     private native void n_start();
@@ -168,6 +186,8 @@ public class MYCPlayer {
     private native void n_resume();
 
     private native void n_stop();
+
+    private native void n_seek(int secds);
 
 
 }

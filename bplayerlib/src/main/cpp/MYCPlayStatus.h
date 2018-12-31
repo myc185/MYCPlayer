@@ -12,6 +12,7 @@ public:
 
     bool exit;
     bool load = true;
+    bool seek = false;
 
 public:
     MYCPlayStatus();

@@ -24,6 +24,7 @@ public:
     jmethodID  jmid_load;
     jmethodID  jmid_timeinfo;
     jmethodID  jmid_error;
+    jmethodID  jmid_complete;
 
 
 
@@ -37,6 +38,7 @@ public:
     void onCallLoad(int type, bool load);
     void onCallTimeInfo(int type, int current, int total);
     void onCallError(int type, int code, char *smg);
+    void onComplete(int type);
 
 };
 

@@ -35,6 +35,13 @@
         android:onClick="stop"
         android:text="Stop" />
 
+    <Button
+        android:id="@+id/btn_seek"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="seek"
+        android:text="Seek" />
+
 
     <TextView
         android:id="@+id/tv_time"

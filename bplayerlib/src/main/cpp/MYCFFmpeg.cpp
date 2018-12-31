@@ -8,6 +8,7 @@
 
 MYCFFmpeg::~MYCFFmpeg() {
     pthread_mutex_destroy(&init_mutex);
+    pthread_mutex_destroy(&seek_mutex);
 }
 
 MYCFFmpeg::MYCFFmpeg(MYCPlayStatus *playStatus, MYCJavaCallback *callback, const char *url) {
@@ -15,6 +16,7 @@ MYCFFmpeg::MYCFFmpeg(MYCPlayStatus *playStatus, MYCJavaCallback *callback, const
     this->url = url;
     this->playStatus = playStatus;
     pthread_mutex_init(&init_mutex, NULL);
+    pthread_mutex_init(&seek_mutex, NULL);
 
 
 }
@@ -104,6 +106,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
             mycAudio->codecpar = avFormatContext->streams[i]->codecpar;
             mycAudio->duration = avFormatContext->duration / AV_TIME_BASE;
             mycAudio->time_base = avFormatContext->streams[i]->time_base;
+            this->duration = mycAudio->duration;
 
         }
     }
@@ -164,11 +167,12 @@ void MYCFFmpeg::decodeFFmpegThread() {
         callbackJava->onCallError(THREAD_CHILD, 1007, "cannot open audio stream");
         exit = true;
         pthread_mutex_unlock(&init_mutex);
-
         return;
     }
+    if (callbackJava != NULL) {
+        callbackJava->onCallPrepared(THREAD_CHILD);
+    }
 
-    callbackJava->onCallPrepared(THREAD_CHILD);
     pthread_mutex_unlock(&init_mutex);
 
 }
@@ -187,16 +191,28 @@ void MYCFFmpeg::start() {
     mycAudio->play();
 
 
-    int count = 0;
     while (playStatus != NULL && !playStatus->exit) {
-        AVPacket *avPacket = av_packet_alloc();
-        if (av_read_frame(avFormatContext, avPacket) == 0) {
 
+        while (playStatus->seek) {
+            continue;
+        }
+
+        if (mycAudio->queue->getQueueSize() > 40) {
+            //队列只保存40帧，避免文件小的时候一下子加载完毕
+            continue;
+        }
+
+        AVPacket *avPacket = av_packet_alloc();
+
+        pthread_mutex_lock(&seek_mutex);
+
+        int ret = av_read_frame(avFormatContext, avPacket);
+
+        pthread_mutex_unlock(&seek_mutex);
+
+        if (ret == 0) {
             if (avPacket->stream_index == mycAudio->streamIndex) {
-                count++;
-                if (LOG_DEBUG) {
-//                    LOGE("decode %d frame", count);
-                }
+
                 mycAudio->queue->putAvpacket(avPacket);
 
             } else {
@@ -225,6 +241,9 @@ void MYCFFmpeg::start() {
         }
     }
 
+    if (callbackJava != NULL) {
+        callbackJava->onComplete(THREAD_CHILD);
+    }
     exit = true;
     if (LOG_DEBUG) {
         LOGD("解码完成！")
@@ -251,9 +270,7 @@ void MYCFFmpeg::release() {
     if (LOG_DEBUG) {
         LOGE("FFmpeg release");
     }
-    if (playStatus->exit) {
-        return;
-    }
+
     playStatus->exit = true;
     pthread_mutex_lock(&init_mutex);
     int spleepCount = 0;
@@ -300,6 +317,32 @@ void MYCFFmpeg::release() {
     }
 
     pthread_mutex_unlock(&init_mutex);
+
+
+}
+
+void MYCFFmpeg::seek(int64_t secds) {
+
+    if (duration <= 0) {
+        return;
+    }
+
+    if (secds >= 0 && secds <= duration) {
+
+        if (mycAudio != NULL) {
+
+            playStatus->seek = true;
+            mycAudio->queue->clearAvPacket();
+            mycAudio->clock = 0;
+            mycAudio->last_time = 0;
+            pthread_mutex_lock(&seek_mutex);
+            int64_t rel = secds * AV_TIME_BASE;
+            avformat_seek_file(avFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
+            pthread_mutex_unlock(&seek_mutex);
+            playStatus->seek = false;
+
+        }
+    }
 
 
 }

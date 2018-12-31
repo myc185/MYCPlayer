@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bosma.bplayerlib.Demo;
 import com.bosma.bplayerlib.bean.TimeInfoBean;
+import com.bosma.bplayerlib.listener.OnCompleteListener;
 import com.bosma.bplayerlib.listener.OnErrorListener;
 import com.bosma.bplayerlib.listener.OnLoadListener;
 import com.bosma.bplayerlib.listener.OnPauseResumeListener;
@@ -95,6 +96,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mycPlayer.setOnCompleteListener(new OnCompleteListener() {
+            @Override
+            public void onComplete() {
+                MyLog.d("播放完成");
+            }
+        });
+
     }
 
     public void prepared(View view) {
@@ -110,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-//        mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
 //        mycPlayer.setSource("http://ngcdn004.ncr.cn/live/dszs/index.m3u8");
-        mycPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+//        mycPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 //        String path = getInnerSDCardPath() + "/mydream.m4a";
 //        // /storage/emulated/0/mydream.m4a
 //        MyLog.d(path);
@@ -186,5 +194,9 @@ public class MainActivity extends AppCompatActivity {
         if (mycPlayer != null) {
             mycPlayer.onStop();
         }
+    }
+
+    public void seek(View view) {
+        mycPlayer.seek(215);
     }
 }

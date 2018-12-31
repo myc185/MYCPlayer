@@ -16,6 +16,7 @@ MYCJavaCallback *callbackJava = NULL;
 MYCFFmpeg *mycfFmpeg = NULL;
 
 MYCPlayStatus *playStatus = NULL;
+pthread_t thread_start;
 
 bool nexit = true;
 
@@ -25,7 +26,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     javaVM = vm;
     JNIEnv *env;
     if (vm->GetEnv((void **) (&env), JNI_VERSION_1_4) != JNI_OK) {
-
         return result;
     }
 
@@ -86,6 +86,12 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1prepared(JNIEnv *env, jobject inst
 //    env->ReleaseStringUTFChars(source_, source);
 }
 
+void *startCallback(void *data) {
+    MYCFFmpeg *fmpeg = (MYCFFmpeg *) (data);
+    fmpeg->start();
+    pthread_exit(&thread_start);
+}
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_bosma_bplayerlib_player_MYCPlayer_n_1start(JNIEnv *env, jobject instance) {
@@ -93,7 +99,8 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1start(JNIEnv *env, jobject instanc
     if (mycfFmpeg == NULL) {
         return;
     }
-    mycfFmpeg->start();
+    pthread_create(&thread_start, NULL, startCallback, mycfFmpeg);
+
 }
 
 extern "C"
@@ -144,4 +151,15 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance
     }
     nexit = true;
 
+}
+
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1seek(JNIEnv *env, jobject instance, jint secds) {
+
+    if (mycfFmpeg == NULL) {
+        return;
+    }
+    mycfFmpeg->seek(secds);
 }
