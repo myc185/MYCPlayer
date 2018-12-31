@@ -354,3 +354,11 @@ void MYCFFmpeg::setVolume(int percent) {
     }
 
 }
+
+void MYCFFmpeg::setMute(int mute) {
+    if (mycAudio != NULL) {
+        mycAudio->setMute(mute);
+    }
+
+
+}

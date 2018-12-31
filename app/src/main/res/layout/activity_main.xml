@@ -90,4 +90,36 @@
         android:layout_margin="10dip"
         android:max="100" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_left"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="leftVolume"
+            android:text="Left" />
+
+        <Button
+            android:id="@+id/btn_right"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="rightVolume"
+            android:text="Right" />
+
+        <Button
+            android:id="@+id/btn_round"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="leftRound"
+            android:text="Round" />
+
+
+    </LinearLayout>
+
 </LinearLayout>

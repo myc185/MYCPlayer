@@ -49,6 +49,9 @@ public:
     //默认声音
     int volumePercent = 100;
 
+    //默认声道 2：立体声
+    int mute = 2;
+
 
     //引擎接口
     SLObjectItf engineObject = NULL;
@@ -63,6 +66,7 @@ public:
     SLObjectItf pcmPlayerObject = NULL;
     SLPlayItf pcmPlayerPlay = NULL;
     SLVolumeItf pcmVolumePlay = NULL;
+    SLMuteSoloItf pcmMuteSoloPlay = NULL;
 
     //缓冲队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
@@ -90,6 +94,8 @@ public:
     void release();
 
     void setVolume(int percent);
+
+    void setMute(int mute);
 };
 
 

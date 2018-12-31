@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bosma.bplayerlib.bean.MuteEnum;
 import com.bosma.bplayerlib.bean.TimeInfoBean;
 import com.bosma.bplayerlib.listener.OnCompleteListener;
 import com.bosma.bplayerlib.listener.OnErrorListener;
@@ -255,4 +256,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void leftVolume(View view) {
+
+        mycPlayer.setMute(MuteEnum.MUTE_LEFT);
+    }
+
+
+    public void rightVolume(View view) {
+        mycPlayer.setMute(MuteEnum.MUTE_RIGHT);
+
+    }
+
+    public void leftRound(View view) {
+        mycPlayer.setMute(MuteEnum.MUTE_CENTER);
+    }
+
 }

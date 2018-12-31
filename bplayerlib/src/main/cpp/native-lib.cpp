@@ -190,3 +190,14 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1volume(JNIEnv *env, jobject instan
     }
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1mute(JNIEnv *env, jobject instance, jint mute) {
+
+    if (mycfFmpeg != NULL) {
+        mycfFmpeg->setMute(mute);
+    }
+
+
+}

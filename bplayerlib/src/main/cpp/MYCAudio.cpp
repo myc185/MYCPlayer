@@ -232,18 +232,21 @@ void MYCAudio::initOpenSLES() {
     };
 
 
-    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
-    const SLboolean req[2] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO};
+    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     SLDataSource slDataSource = {&androidBufferQueue, &pcm};
 
-    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 2,
+    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 3,
                                        ids, req);
     //初始化播放器
     (*pcmPlayerObject)->Realize(pcmPlayerObject, SL_BOOLEAN_FALSE);
     //获取Player接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_PLAY, &pcmPlayerPlay);
+    //获取声音接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_VOLUME, &pcmVolumePlay);
+    //获取声道接口
+    (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_MUTESOLO, &pcmMuteSoloPlay);
     setVolume(volumePercent);
 
 
@@ -402,6 +405,23 @@ void MYCAudio::setVolume(int percent) {
             (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -40);
         } else {
             (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -100);
+        }
+    }
+
+}
+
+void MYCAudio::setMute(int mute) {
+    this->mute= mute;
+    if (pcmMuteSoloPlay != NULL) {
+        if (mute == 0) {//right
+            (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 1, false);
+            (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 0, true);
+        } else if (mute == 1) {// left
+            (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 1, true);
+            (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 0, false);
+        } else if (mute == 2) {//round
+            (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 1, false);
+            (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 0, false);
         }
     }
 

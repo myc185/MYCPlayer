@@ -2,6 +2,7 @@ package com.bosma.bplayerlib.player;
 
 import android.text.TextUtils;
 
+import com.bosma.bplayerlib.bean.MuteEnum;
 import com.bosma.bplayerlib.bean.TimeInfoBean;
 import com.bosma.bplayerlib.listener.OnCompleteListener;
 import com.bosma.bplayerlib.listener.OnErrorListener;
@@ -38,6 +39,7 @@ public class MYCPlayer {
 
     private static int duration = -1;
     private static int volumePercent = 100;
+    private static MuteEnum mute = MuteEnum.MUTE_CENTER;
 
     private OnPreparedListener onPreparedListener;
 
@@ -106,7 +108,8 @@ public class MYCPlayer {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                setVolume(50);//默认
+                setVolume(50);//默认音量
+                setMute(mute);//默认声道
                 n_start();
             }
         }).start();
@@ -172,6 +175,11 @@ public class MYCPlayer {
         return volumePercent;
     }
 
+    public void setMute(MuteEnum mute) {
+        this.mute = mute;
+        n_mute(mute.getValue());
+    }
+
     public void onCallLoad(boolean load) {
         if (onLoadListener != null) {
             onLoadListener.onLoad(load);
@@ -235,6 +243,8 @@ public class MYCPlayer {
     private native int n_duration();
 
     private native void n_volume(int percent);
+
+    private native void n_mute(int mute);
 
 
 }
