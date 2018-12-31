@@ -136,7 +136,7 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1stop(JNIEnv *env, jobject instance
     }
 
     jclass jlz = env->GetObjectClass(instance);
-    jmethodID jmid_next = env->GetMethodID(jlz, "onCallNext","()V");
+    jmethodID jmid_next = env->GetMethodID(jlz, "onCallNext", "()V");
 
     nexit = false;
     if (mycfFmpeg != NULL) {
@@ -167,4 +167,16 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1seek(JNIEnv *env, jobject instance
         return;
     }
     mycfFmpeg->seek(secds);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1duration(JNIEnv *env, jobject instance) {
+
+
+    if (mycfFmpeg != NULL) {
+        return mycfFmpeg->duration;
+    }
+
+
 }

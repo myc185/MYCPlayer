@@ -36,6 +36,8 @@ public class MYCPlayer {
 
     private static boolean playNext = false;
 
+    private static int duration = -1;
+
     private OnPreparedListener onPreparedListener;
 
     private OnLoadListener onLoadListener;
@@ -125,6 +127,7 @@ public class MYCPlayer {
 
     public void onStop() {
         timeInfoBean = null;
+        duration = -1;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -143,6 +146,17 @@ public class MYCPlayer {
         source = url;
         playNext = true;
         onStop();
+    }
+
+    public int getDuration() {
+
+        if (duration < 0) {
+            duration = n_duration();
+        }
+
+        return duration;
+
+
     }
 
     public void onCallLoad(boolean load) {
@@ -204,6 +218,8 @@ public class MYCPlayer {
     private native void n_stop();
 
     private native void n_seek(int secds);
+
+    private native int n_duration();
 
 
 }

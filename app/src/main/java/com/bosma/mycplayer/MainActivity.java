@@ -13,10 +13,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bosma.bplayerlib.Demo;
 import com.bosma.bplayerlib.bean.TimeInfoBean;
 import com.bosma.bplayerlib.listener.OnCompleteListener;
 import com.bosma.bplayerlib.listener.OnErrorListener;
@@ -28,21 +28,23 @@ import com.bosma.bplayerlib.log.MyLog;
 import com.bosma.bplayerlib.player.MYCPlayer;
 import com.bosma.bplayerlib.util.TimeUtil;
 
-import java.io.File;
-import java.sql.Time;
-
 public class MainActivity extends AppCompatActivity {
 
     private MYCPlayer mycPlayer;
     private int MY_PERMISSIONS_REQUEST_CALL_SDCARD = 100;
     private TextView mTvTime;
 
+    private SeekBar mSeekBar;
+
+    private int position = 0;
+    private boolean isSeekBar = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTvTime = findViewById(R.id.tv_time);
-
+        mSeekBar = findViewById(R.id.sb_seekbar);
         mycPlayer = new MYCPlayer();
 
         mycPlayer.setOnPreparedListener(new OnPreparedListener() {
@@ -100,6 +102,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete() {
                 MyLog.d("播放完成");
+            }
+        });
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(mycPlayer.getDuration() > 0 && isSeekBar) {
+                    position = mycPlayer.getDuration() * progress / 100;
+                }
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                    isSeekBar = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mycPlayer.seek(position);
+                isSeekBar = false;
+
             }
         });
 
@@ -175,9 +199,12 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 1) {
-                TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
 
-                mTvTime.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime()) + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+                if(!isSeekBar) {
+                    TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
+                    mTvTime.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime()) + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+                    mSeekBar.setProgress(timeInfoBean.getCurrentTime() * 100/timeInfoBean.getTotalTime());
+                }
 
             }
         }
@@ -197,9 +224,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void seek(View view) {
-        mycPlayer.seek(215);
-    }
+
 
     public void next(View view) {
         mycPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");

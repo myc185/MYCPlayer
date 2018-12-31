@@ -7,48 +7,55 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btn_prepared"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="prepared"
-        android:text="start" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btn_pause"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="pause"
-        android:text="Pause" />
+        <Button
+            android:id="@+id/btn_prepared"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="prepared"
+            android:text="start" />
 
-    <Button
-        android:id="@+id/btn_resume"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="resume"
-        android:text="Play" />
+        <Button
+            android:id="@+id/btn_stop"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="stop"
+            android:text="Stop" />
 
-    <Button
-        android:id="@+id/btn_stop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="stop"
-        android:text="Stop" />
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="pause"
+            android:text="Pause" />
 
-    <Button
-        android:id="@+id/btn_seek"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="seek"
-        android:text="Seek" />
+        <Button
+            android:id="@+id/btn_resume"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="resume"
+            android:text="Play" />
 
-    <Button
-        android:id="@+id/btn_next"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="next"
-        android:text="Next" />
 
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="next"
+            android:text="Next" />
+
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_time"
@@ -59,5 +66,11 @@
         android:text="00:00 / 00:00"
         android:textColor="#222222"
         android:textSize="18sp" />
+
+    <SeekBar
+        android:id="@+id/sb_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dip"/>
 
 </LinearLayout>
