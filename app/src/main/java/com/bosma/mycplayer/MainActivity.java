@@ -33,25 +33,32 @@ public class MainActivity extends AppCompatActivity {
     private MYCPlayer mycPlayer;
     private int MY_PERMISSIONS_REQUEST_CALL_SDCARD = 100;
     private TextView mTvTime;
+    private TextView mTvVolume;
 
-    private SeekBar mSeekBar;
+    private SeekBar mSeekBarTime;
+    private SeekBar mSeekBarVolume;
 
-    private int position = 0;
-    private boolean isSeekBar = false;
+    private int positionTime = 0;
+    private boolean isSeekBarTime = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTvTime = findViewById(R.id.tv_time);
-        mSeekBar = findViewById(R.id.sb_seekbar);
+        mTvVolume = findViewById(R.id.tv_vlume);
+        mSeekBarTime = findViewById(R.id.sb_seekbar_time);
+        mSeekBarVolume = findViewById(R.id.sb_seekbar_vloume);
         mycPlayer = new MYCPlayer();
-
+        mycPlayer.setVolume(50);
+        mTvVolume.setText("Volume:" + mycPlayer.getVolumePercent() + "%");
+        mSeekBarVolume.setProgress(mycPlayer.getVolumePercent());
         mycPlayer.setOnPreparedListener(new OnPreparedListener() {
             @Override
             public void onPrepared() {
                 Log.d(MainActivity.class.getSimpleName(), "音频解码器已经准备好了");
                 mycPlayer.start();
+
             }
         });
 
@@ -105,24 +112,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mSeekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(mycPlayer.getDuration() > 0 && isSeekBar) {
-                    position = mycPlayer.getDuration() * progress / 100;
+                if (mycPlayer.getDuration() > 0 && isSeekBarTime) {
+                    positionTime = mycPlayer.getDuration() * progress / 100;
                 }
 
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                    isSeekBar = true;
+                isSeekBarTime = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mycPlayer.seek(position);
-                isSeekBar = false;
+                mycPlayer.seek(positionTime);
+                isSeekBarTime = false;
+
+            }
+        });
+
+        mSeekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                mycPlayer.setVolume(progress);
+                mTvVolume.setText("Volume:" + mycPlayer.getVolumePercent() + "%");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
         });
@@ -200,10 +225,10 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.what == 1) {
 
-                if(!isSeekBar) {
+                if (!isSeekBarTime) {
                     TimeInfoBean timeInfoBean = (TimeInfoBean) msg.obj;
                     mTvTime.setText(TimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime()) + "/" + TimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
-                    mSeekBar.setProgress(timeInfoBean.getCurrentTime() * 100/timeInfoBean.getTotalTime());
+                    mSeekBarTime.setProgress(timeInfoBean.getCurrentTime() * 100 / timeInfoBean.getTotalTime());
                 }
 
             }
@@ -223,7 +248,6 @@ public class MainActivity extends AppCompatActivity {
             mycPlayer.onStop();
         }
     }
-
 
 
     public void next(View view) {

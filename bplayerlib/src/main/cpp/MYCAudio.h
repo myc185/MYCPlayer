@@ -46,6 +46,9 @@ public:
     double clock = 0;
     double last_time = 0;
 
+    //默认声音
+    int volumePercent = 100;
+
 
     //引擎接口
     SLObjectItf engineObject = NULL;
@@ -59,6 +62,7 @@ public:
     //PCM
     SLObjectItf pcmPlayerObject = NULL;
     SLPlayItf pcmPlayerPlay = NULL;
+    SLVolumeItf pcmVolumePlay = NULL;
 
     //缓冲队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
@@ -84,6 +88,8 @@ public:
     void stop();
 
     void release();
+
+    void setVolume(int percent);
 };
 
 

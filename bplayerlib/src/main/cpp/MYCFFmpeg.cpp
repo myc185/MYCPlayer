@@ -346,3 +346,11 @@ void MYCFFmpeg::seek(int64_t secds) {
 
 
 }
+
+void MYCFFmpeg::setVolume(int percent) {
+
+    if (mycAudio != NULL) {
+        mycAudio->setVolume(percent);
+    }
+
+}

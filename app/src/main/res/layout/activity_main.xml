@@ -68,9 +68,26 @@
         android:textSize="18sp" />
 
     <SeekBar
-        android:id="@+id/sb_seekbar"
+        android:id="@+id/sb_seekbar_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dip"/>
+        android:layout_margin="10dip" />
+
+    <TextView
+        android:id="@+id/tv_vlume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dip"
+        android:text="volume"
+        android:textColor="#222222"
+        android:textSize="18sp" />
+
+    <SeekBar
+        android:id="@+id/sb_seekbar_vloume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dip"
+        android:max="100" />
 
 </LinearLayout>

@@ -180,3 +180,13 @@ Java_com_bosma_bplayerlib_player_MYCPlayer_n_1duration(JNIEnv *env, jobject inst
 
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_bosma_bplayerlib_player_MYCPlayer_n_1volume(JNIEnv *env, jobject instance, jint percent) {
+
+    if (mycfFmpeg != NULL) {
+        mycfFmpeg->setVolume(percent);
+    }
+
+}

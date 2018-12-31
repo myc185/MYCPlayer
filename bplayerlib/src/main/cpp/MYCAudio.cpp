@@ -232,21 +232,27 @@ void MYCAudio::initOpenSLES() {
     };
 
 
-    const SLInterfaceID ids[1] = {SL_IID_BUFFERQUEUE};
-    const SLboolean req[1] = {SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
+    const SLboolean req[2] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     SLDataSource slDataSource = {&androidBufferQueue, &pcm};
 
-    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 1,
+    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 2,
                                        ids, req);
-
+    //初始化播放器
     (*pcmPlayerObject)->Realize(pcmPlayerObject, SL_BOOLEAN_FALSE);
+    //获取Player接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_PLAY, &pcmPlayerPlay);
+    (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_VOLUME, &pcmVolumePlay);
+    setVolume(volumePercent);
+
+
+    //注册回调缓冲区，获取缓冲接口
     (*pcmPlayerObject)->GetInterface(pcmPlayerObject, SL_IID_BUFFERQUEUE, &pcmBufferQueue);
 
     (*pcmBufferQueue)->RegisterCallback(pcmBufferQueue, pcmBufferCallback, this);
-
-    (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);//播放状态
+    //播放状态
+    (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
     pcmBufferCallback(pcmBufferQueue, this);//执行回调
 
 }
@@ -330,14 +336,15 @@ void MYCAudio::release() {
         queue = NULL;
     }
 
-    if(pcmPlayerObject != NULL) {
+    if (pcmPlayerObject != NULL) {
         (*pcmPlayerObject)->Destroy(pcmPlayerObject);
         pcmPlayerObject = NULL;
         pcmPlayerPlay = NULL;
         pcmBufferQueue = NULL;
+        pcmVolumePlay = NULL;
     }
 
-    if(outputMixObject != NULL) {
+    if (outputMixObject != NULL) {
 
         (*outputMixObject)->Destroy(outputMixObject);
         outputMixObject = NULL;
@@ -345,7 +352,7 @@ void MYCAudio::release() {
 
     }
 
-    if(engineObject != NULL) {
+    if (engineObject != NULL) {
 
         (*engineObject)->Destroy(engineObject);
         engineObject = NULL;
@@ -353,23 +360,49 @@ void MYCAudio::release() {
 
     }
 
-    if(buffer != NULL) {
+    if (buffer != NULL) {
         free(buffer);
         buffer = NULL;
     }
 
-    if(avCodecContext != NULL) {
+    if (avCodecContext != NULL) {
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
         avCodecContext = NULL;
     }
 
-    if(playStatus != NULL) {
+    if (playStatus != NULL) {
         playStatus = NULL;
     }
 
-    if(javaCallback != NULL) {
+    if (javaCallback != NULL) {
         javaCallback = NULL;
+    }
+
+}
+
+void MYCAudio::setVolume(int percent) {
+    volumePercent = percent;
+    if (pcmVolumePlay != NULL) {
+        if (percent > 30) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -20);
+        } else if (percent > 25) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -22);
+        } else if (percent > 20) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -25);
+        } else if (percent > 15) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -28);
+        } else if (percent > 10) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -30);
+        } else if (percent > 5) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -34);
+        } else if (percent > 3) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -37);
+        } else if (percent > 0) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -40);
+        } else {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -100);
+        }
     }
 
 }
