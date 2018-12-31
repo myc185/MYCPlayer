@@ -29,6 +29,8 @@ import com.bosma.bplayerlib.log.MyLog;
 import com.bosma.bplayerlib.player.MYCPlayer;
 import com.bosma.bplayerlib.util.TimeUtil;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
 
     private MYCPlayer mycPlayer;

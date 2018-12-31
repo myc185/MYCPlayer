@@ -194,11 +194,14 @@ void MYCFFmpeg::start() {
     while (playStatus != NULL && !playStatus->exit) {
 
         while (playStatus->seek) {
+
+            av_usleep(1000*100);//100毫秒
             continue;
         }
 
         if (mycAudio->queue->getQueueSize() > 40) {
             //队列只保存40帧，避免文件小的时候一下子加载完毕
+            av_usleep(1000*100);//100毫秒
             continue;
         }
 
@@ -230,6 +233,7 @@ void MYCFFmpeg::start() {
             //释放缓存
             while (playStatus != NULL && !playStatus->exit) {
                 if (mycAudio->queue->getQueueSize() > 0) {
+                    av_usleep(1000*100);//100毫秒
                     continue;
                 } else {
                     playStatus->exit = true;

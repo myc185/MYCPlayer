@@ -40,15 +40,21 @@ void MYCAudio::play() {
  * 重采样
  */
 int MYCAudio::resampleAudio() {
-
+    data_size = 0;
     while (playStatus != NULL && !playStatus->exit) {
 
+        if (playStatus->seek) {
+            av_usleep(1000 * 100);//100毫秒
+            continue;
+        }
 
-        if (queue->getQueueSize() == 0) {
+        if (queue->getQueueSize() == 0) {//加载中
             if (!playStatus->load) {
                 playStatus->load = true;
                 javaCallback->onCallLoad(THREAD_CHILD, true);
             }
+            av_usleep(1000 * 100);//100毫秒
+            continue;
 
         } else {
             if (playStatus->load) {
@@ -232,12 +238,14 @@ void MYCAudio::initOpenSLES() {
     };
 
 
-    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO};
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    //SL_IID_PLAYBACKRATE：解决播放卡顿问题
+    const SLInterfaceID ids[4] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME,
+                                  SL_IID_MUTESOLO, SL_IID_PLAYBACKRATE};
+    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     SLDataSource slDataSource = {&androidBufferQueue, &pcm};
 
-    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 3,
+    (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayerObject, &slDataSource, &audioSnk, 4,
                                        ids, req);
     //初始化播放器
     (*pcmPlayerObject)->Realize(pcmPlayerObject, SL_BOOLEAN_FALSE);
@@ -411,7 +419,7 @@ void MYCAudio::setVolume(int percent) {
 }
 
 void MYCAudio::setMute(int mute) {
-    this->mute= mute;
+    this->mute = mute;
     if (pcmMuteSoloPlay != NULL) {
         if (mute == 0) {//right
             (*pcmMuteSoloPlay)->SetChannelMute(pcmMuteSoloPlay, 1, false);
