@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "MYCJavaCallback.h"
 #include "MYCAudio.h"
+#include "MYCVideo.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -24,6 +25,7 @@ public:
     pthread_t decodeThread;
     AVFormatContext *avFormatContext = NULL;
     MYCAudio *mycAudio = NULL;
+    MYCVideo *video = NULL;
     MYCPlayStatus *playStatus = NULL;
 
     pthread_mutex_t init_mutex;
@@ -55,6 +57,8 @@ public:
     void setVolume(int percent);
 
     void setMute(int mute);
+
+    int getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCodecContext);
 
 };
 

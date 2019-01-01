@@ -96,7 +96,7 @@ void MYCFFmpeg::decodeFFmpegThread() {
 
     //4、找到音频解码器类型
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
-        if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {//属于音频
             if (mycAudio == NULL) {
                 mycAudio = new MYCAudio(playStatus,
                                         avFormatContext->streams[i]->codecpar->sample_rate,
@@ -108,69 +108,35 @@ void MYCFFmpeg::decodeFFmpegThread() {
             mycAudio->time_base = avFormatContext->streams[i]->time_base;
             this->duration = mycAudio->duration;
 
+        } else if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {//属于视频
+            if (video == NULL) {
+                video = new MYCVideo(playStatus, callbackJava);
+                video->streamIndex = i;
+                video->codecpar = avFormatContext->streams[i]->codecpar;
+                video->time_base = avFormatContext->streams[i]->time_base;
+
+            }
+
         }
     }
 
-    if (!mycAudio) {
-        if (LOG_DEBUG) {
-            LOGE("cannot find decoder");
-        }
-        callbackJava->onCallError(THREAD_CHILD, 1003, "cannot find decoder");
-        exit = true;
-        pthread_mutex_unlock(&init_mutex);
 
-        return;
-    }
     //5、找到音频解码器
-    AVCodec *dec = avcodec_find_decoder(mycAudio->codecpar->codec_id);
-    if (!dec) {
-        if (LOG_DEBUG) {
-            LOGE("cannot find decoder");
-        }
-        callbackJava->onCallError(THREAD_CHILD, 1004, "cannot find decoder");
-        exit = true;
-        pthread_mutex_unlock(&init_mutex);
-
-        return;
+    if (mycAudio != NULL) {
+        getCodecContext(mycAudio->codecpar, &mycAudio->avCodecContext);
+    }
+    if (video != NULL) {
+        getCodecContext(video->codecpar, &video->avCodecContext);
     }
 
-    //6、利用音频解码器创建解码器上下文
-    mycAudio->avCodecContext = avcodec_alloc_context3(dec);
-    if (!mycAudio->avCodecContext) {
-        if (LOG_DEBUG) {
-            LOGE("cannot alloc new decoder ctx");
-        }
-        callbackJava->onCallError(THREAD_CHILD, 1005, "cannot alloc new decoder ctx");
-        exit = true;
-        pthread_mutex_unlock(&init_mutex);
-
-        return;
-    }
-
-    //填充初始化好的解码器参数
-    if (avcodec_parameters_to_context(mycAudio->avCodecContext, mycAudio->codecpar) < 0) {
-        if (LOG_DEBUG) {
-            LOGE("cannot fill decoder ctx");
-        }
-        callbackJava->onCallError(THREAD_CHILD, 1006, "cannot fill decoder ctx");
-        exit = true;
-        pthread_mutex_unlock(&init_mutex);
-
-        return;
-    }
-
-    //7、打开音频解码器
-    if (avcodec_open2(mycAudio->avCodecContext, dec, 0) != 0) {
-        if (LOG_DEBUG) {
-            LOGE("cannot open audio stream");
-        }
-        callbackJava->onCallError(THREAD_CHILD, 1007, "cannot open audio stream");
-        exit = true;
-        pthread_mutex_unlock(&init_mutex);
-        return;
-    }
     if (callbackJava != NULL) {
-        callbackJava->onCallPrepared(THREAD_CHILD);
+
+        if (playStatus != NULL && !playStatus->exit) {
+            callbackJava->onCallPrepared(THREAD_CHILD);
+        } else {
+            exit = true;
+        }
+
     }
 
     pthread_mutex_unlock(&init_mutex);
@@ -189,19 +155,19 @@ void MYCFFmpeg::start() {
 
     //刚开始解码是没数据的，但是获取数据的时候会阻塞，因此可以在这里提前调用
     mycAudio->play();
-
+    video->play();
 
     while (playStatus != NULL && !playStatus->exit) {
 
         while (playStatus->seek) {
 
-            av_usleep(1000*100);//100毫秒
+            av_usleep(1000 * 100);//100毫秒
             continue;
         }
 
         if (mycAudio->queue->getQueueSize() > 40) {
             //队列只保存40帧，避免文件小的时候一下子加载完毕
-            av_usleep(1000*100);//100毫秒
+            av_usleep(1000 * 100);//100毫秒
             continue;
         }
 
@@ -218,6 +184,8 @@ void MYCFFmpeg::start() {
 
                 mycAudio->queue->putAvpacket(avPacket);
 
+            } else if (avPacket->stream_index == video->streamIndex) {
+                video->queue->putAvpacket(avPacket);
             } else {
                 av_packet_free(&avPacket);
                 av_free(avPacket);
@@ -233,7 +201,7 @@ void MYCFFmpeg::start() {
             //释放缓存
             while (playStatus != NULL && !playStatus->exit) {
                 if (mycAudio->queue->getQueueSize() > 0) {
-                    av_usleep(1000*100);//100毫秒
+                    av_usleep(1000 * 100);//100毫秒
                     continue;
                 } else {
                     playStatus->exit = true;
@@ -365,4 +333,58 @@ void MYCFFmpeg::setMute(int mute) {
     }
 
 
+}
+
+//创建解码器
+int MYCFFmpeg::getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCodecContext) {
+
+    AVCodec *dec = avcodec_find_decoder(codecpar->codec_id);
+    if (!dec) {
+        if (LOG_DEBUG) {
+            LOGE("cannot find decoder");
+        }
+        callbackJava->onCallError(THREAD_CHILD, 1004, "cannot find decoder");
+        exit = true;
+        pthread_mutex_unlock(&init_mutex);
+
+        return -1;
+    }
+
+    //6、利用音频解码器创建解码器上下文
+    *avCodecContext = avcodec_alloc_context3(dec);
+    if (!mycAudio->avCodecContext) {
+        if (LOG_DEBUG) {
+            LOGE("cannot alloc new decoder ctx");
+        }
+        callbackJava->onCallError(THREAD_CHILD, 1005, "cannot alloc new decoder ctx");
+        exit = true;
+        pthread_mutex_unlock(&init_mutex);
+
+        return -1;
+    }
+
+    //填充初始化好的解码器参数
+    if (avcodec_parameters_to_context(*avCodecContext, codecpar) < 0) {
+        if (LOG_DEBUG) {
+            LOGE("cannot fill decoder ctx");
+        }
+        callbackJava->onCallError(THREAD_CHILD, 1006, "cannot fill decoder ctx");
+        exit = true;
+        pthread_mutex_unlock(&init_mutex);
+
+        return -1;
+    }
+
+    //7、打开音频解码器
+    if (avcodec_open2(*avCodecContext, dec, 0) != 0) {
+        if (LOG_DEBUG) {
+            LOGE("cannot open audio stream");
+        }
+        callbackJava->onCallError(THREAD_CHILD, 1007, "cannot open audio stream");
+        exit = true;
+        pthread_mutex_unlock(&init_mutex);
+        return -1;
+    }
+
+    return 0;
 }

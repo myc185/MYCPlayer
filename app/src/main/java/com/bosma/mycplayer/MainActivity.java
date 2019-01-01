@@ -174,12 +174,13 @@ public class MainActivity extends AppCompatActivity {
 //        mycPlayer.setSource("http://ngcdn004.ncr.cn/live/dszs/index.m3u8");
 //        mycPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 //        String path = getInnerSDCardPath() + "/mydream.m4a";
-//        // /storage/emulated/0/mydream.m4a
-//        MyLog.d(path);
-//        File file = new File(path);
-//        if (file.exists()) {
-//            mycPlayer.setSource(path);
-//        }
+        String path = getInnerSDCardPath() + "/dakar2_24.mp4";
+        // /storage/emulated/0/mydream.m4a
+        MyLog.d(path);
+        File file = new File(path);
+        if (file.exists()) {
+            mycPlayer.setSource(path);
+        }
 
         mycPlayer.prepared();
 
@@ -254,8 +255,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void next(View view) {
-        mycPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
+//        mycPlayer.playNext("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 
+        String path = getInnerSDCardPath() + "/dakar2_10.mp4";
+        // /storage/emulated/0/mydream.m4a
+        MyLog.d(path);
+        File file = new File(path);
+        if (file.exists()) {
+            mycPlayer.setSource(path);
+        }
 
     }
 

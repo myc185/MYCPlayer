@@ -12,6 +12,7 @@ add_library( # Sets the name of the library.
         src/main/cpp/MYCJavaCallback.cpp
         src/main/cpp/MYCPlayStatus.cpp
         src/main/cpp/MYCQueue.cpp
+        src/main/cpp/MYCVideo.cpp
 
         )
 
