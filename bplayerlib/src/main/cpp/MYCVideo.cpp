@@ -94,6 +94,13 @@ void *callPlayVideo(void *data) {
         //YUV转换和获取
         if (avFrame->format == AV_PIX_FMT_YUV420P) {
             LOGE("当前视频是：YUV420P 格式")
+
+
+            double diff = video->getFrameDiffTime(avFrame);
+            LOGE("当前视频音频时间差：%f", diff);
+
+            av_usleep(video->getDelayTime(diff) * 1000 * 1000);
+
             //直接返回给Java层进行渲染
             video->javaCallback->onCallRenderYUV(
                     video->avCodecContext->width,
@@ -210,4 +217,58 @@ void MYCVideo::release() {
     }
 
 
+}
+
+double MYCVideo::getFrameDiffTime(AVFrame *avFrame) {
+    double pts = av_frame_get_best_effort_timestamp(avFrame);
+
+    if (pts == AV_NOPTS_VALUE) {
+        pts = 0;//这个帧没有值
+    }
+
+    pts *= av_q2d(time_base);
+
+    if (pts > 0) {
+        clock = pts;
+    }
+
+    //时间差
+    double diff = audio->clock - clock;
+    return diff;
+}
+
+double MYCVideo::getDelayTime(double diff) {
+
+    if (diff > 0.003) {
+        delayTime = delayTime * 2 / 3;
+        //不能超出默认值太多
+        if (delayTime < defaultDelayTime / 2) {
+            delayTime = defaultDelayTime * 2 / 3;
+        } else if (delayTime > defaultDelayTime * 2) {
+            delayTime = defaultDelayTime * 2;
+        }
+
+    } else if (diff < -0.003) {
+        delayTime = delayTime * 3 / 2;
+
+        if (delayTime < defaultDelayTime / 2) {
+            delayTime = defaultDelayTime * 2 / 3;
+        } else if (delayTime > defaultDelayTime * 2) {
+            delayTime = defaultDelayTime * 2;
+        }
+
+    } else if (diff == 0.003) {
+
+    }
+
+    if (diff >= 0.5) {//视频延后了
+        delayTime = 0;
+    } else if (diff <= -0.5) {
+        //延迟比较严重，以两倍速度来休眠
+        delayTime = defaultDelayTime * 2;
+    }
+    if (fabs(diff) >= 10.0) {//这种情况可能是没有音频，就让它按实际默认值来延迟就行
+        delayTime = defaultDelayTime;
+    }
+    return delayTime;
 }

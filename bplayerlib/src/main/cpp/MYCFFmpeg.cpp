@@ -115,6 +115,15 @@ void MYCFFmpeg::decodeFFmpegThread() {
                 video->codecpar = avFormatContext->streams[i]->codecpar;
                 video->time_base = avFormatContext->streams[i]->time_base;
 
+                //计算视频默认延迟时间
+                int num = avFormatContext->streams[i]->avg_frame_rate.num;
+                int den = avFormatContext->streams[i]->avg_frame_rate.den;
+                if (num != 0 && den != 0) {
+                    int fps = num / den;
+                    //默认延迟时间，也就是一帧视频播放事件 如果一秒25帧，就是0.04秒
+                    video->defaultDelayTime = 1.0 / fps;
+                }
+
             }
 
         }
@@ -152,6 +161,16 @@ void MYCFFmpeg::start() {
         callbackJava->onCallError(THREAD_CHILD, 1008, "audio is null");
         return;
     }
+    if (video == NULL) {
+        if (LOG_DEBUG) {
+            LOGE("video is null");
+        }
+        callbackJava->onCallError(THREAD_CHILD, 1009, "video is null");
+        return;
+    }
+
+    video->audio = mycAudio;
+
 
     //刚开始解码是没数据的，但是获取数据的时候会阻塞，因此可以在这里提前调用
     mycAudio->play();

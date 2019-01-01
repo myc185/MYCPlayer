@@ -7,6 +7,7 @@
 
 #include "MYCQueue.h"
 #include "MYCJavaCallback.h"
+#include "MYCAudio.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -31,6 +32,13 @@ public:
 
     pthread_t thread_play;
 
+    MYCAudio *audio = NULL;
+    double clock = 0;
+    double delayTime = 0;
+
+    //默认延迟时间，也就是一帧视频播放事件 如果一秒25帧，就是0.04秒
+    double defaultDelayTime = 0.04;
+
 
 public:
     MYCVideo(MYCPlayStatus *playStatus, MYCJavaCallback *javaCallback);
@@ -40,6 +48,10 @@ public:
     void play();
 
     void release();
+
+    double getFrameDiffTime(AVFrame *avFrame);
+
+    double getDelayTime(double diff);
 
 };
 
