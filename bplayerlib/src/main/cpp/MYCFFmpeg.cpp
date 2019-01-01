@@ -267,6 +267,15 @@ void MYCFFmpeg::release() {
         delete (mycAudio);
         mycAudio = NULL;
     }
+    if (LOG_DEBUG) {
+        LOGE("释放 Video");
+    }
+    if (video != NULL) {
+        video->release();
+        delete (video);
+        video = NULL;
+    }
+
 
     if (LOG_DEBUG) {
         LOGE("释放 封装格式上下文");
