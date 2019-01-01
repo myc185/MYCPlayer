@@ -112,9 +112,8 @@ public class YCRender implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         //用什么颜色清屏，显示的时候就是什么背景的颜色
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
         renderYUV();
-
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);//两个三角形,六个顶点，但有两个复用
     }
 
     /**
@@ -198,7 +197,6 @@ public class YCRender implements GLSurfaceView.Renderer {
             u = null;
             v = null;
 
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);//两个三角形,六个顶点，但有两个复用
         }
 
     }
