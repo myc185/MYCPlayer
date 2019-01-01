@@ -23,6 +23,7 @@ MYCJavaCallback::MYCJavaCallback(JavaVM *jvm, JNIEnv *env, jobject *obj) {
     this->jmid_timeinfo = env->GetMethodID(jclz, "onCallTimeInfo", "(II)V");
     this->jmid_error = env->GetMethodID(jclz, "onCallError", "(ILjava/lang/String;)V");
     this->jmid_complete = env->GetMethodID(jclz, "onCallComplete", "()V");
+    this->jmid_renderyuv = env->GetMethodID(jclz, "onCallRenderYUV", "(II[B[B[B)V");
 
 
 }
@@ -119,6 +120,37 @@ void MYCJavaCallback::onComplete(int type) {
         jniEn->CallVoidMethod(jobj, jmid_complete);
         javaVM->DetachCurrentThread();
     }
+
+
+}
+
+void
+MYCJavaCallback::onCallRenderYUV(int width, int height, uint8_t *fy, uint8_t *fu, uint8_t *fv) {
+
+    JNIEnv *jniEn;
+    if (javaVM->AttachCurrentThread(&jniEn, 0) != JNI_OK) {
+        if (LOG_DEBUG) {
+            LOGE("Get child thread jnienv error");
+        }
+        return;
+    }
+
+    jbyteArray y = jniEn->NewByteArray(width * height);
+    jniEn->SetByteArrayRegion(y, 0, width * height, (const jbyte *) (fy));
+
+    jbyteArray u = jniEn->NewByteArray(width * height / 4);
+    jniEn->SetByteArrayRegion(u, 0, width * height / 4, (const jbyte *) (fu));
+
+
+    jbyteArray v = jniEn->NewByteArray(width * height / 4);
+    jniEn->SetByteArrayRegion(v, 0, width * height / 4, (const jbyte *) (fv));
+
+
+    jniEn->CallVoidMethod(jobj, jmid_renderyuv, width, height, y, u, v);
+    jniEn->DeleteLocalRef(y);
+    jniEn->DeleteLocalRef(u);
+    jniEn->DeleteLocalRef(v);
+    javaVM->DetachCurrentThread();
 
 
 }

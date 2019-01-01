@@ -228,6 +228,12 @@ public class MYCPlayer {
         }
     }
 
+    public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v) {
+
+        MyLog.d("获取到视频的YUV数据");
+
+    }
+
     private native void n_prepared(String source);
 
     private native void n_start();

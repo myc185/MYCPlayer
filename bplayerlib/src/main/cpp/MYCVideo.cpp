@@ -10,6 +10,8 @@
 //
 
 
+
+
 #include "MYCVideo.h"
 
 MYCVideo::MYCVideo(MYCPlayStatus *playStatus, MYCJavaCallback *javaCallback) {
@@ -92,9 +94,87 @@ void *callPlayVideo(void *data) {
         LOGE("子线程解码一个AvFrame 成功");
 
 
+        //YUV转换和获取
+        if (avFrame->format != AV_PIX_FMT_YUV420P) {
+            LOGE("当前视频是：YUV420P 格式")
+            //直接返回给Java层进行渲染
+            video->javaCallback->onCallRenderYUV(
+                    video->avCodecContext->width,
+                    video->avCodecContext->height,
+                    avFrame->data[0],
+                    avFrame->data[1],
+                    avFrame->data[1]);
+        } else {
+            LOGE("当前视频不是YUV420P 格式")
+            //转成420
+            AVFrame *pFrameYUV420P = av_frame_alloc();
+
+            //需要转换的内存大小
+            int num = av_image_get_buffer_size(
+                    AV_PIX_FMT_YUV420P,
+                    video->avCodecContext->width,
+                    video->avCodecContext->height,
+                    1);
+            uint8_t *buffer = (uint8_t *) (av_malloc(num * sizeof(uint8_t)));
+
+            av_image_fill_arrays(
+                    pFrameYUV420P->data,
+                    pFrameYUV420P->linesize,
+                    buffer,
+                    AV_PIX_FMT_YUV420P,
+                    video->avCodecContext->width,
+                    video->avCodecContext->height,
+                    1);
+
+            SwsContext *sws_ctx = sws_getContext(
+                    video->avCodecContext->width,
+                    video->avCodecContext->height,
+                    video->avCodecContext->pix_fmt,
+                    video->avCodecContext->width,
+                    video->avCodecContext->height,
+                    AV_PIX_FMT_YUV420P,
+                    SWS_BICUBIC, NULL, NULL, NULL
+            );
+
+            if (!sws_ctx) {
+                //创建不成功
+                av_frame_free(&pFrameYUV420P);
+                av_free(pFrameYUV420P);
+                av_free(buffer);
+                continue;
+            }
+
+            sws_scale(
+                    sws_ctx,
+                    avFrame->data,
+                    avFrame->linesize,
+                    0,
+                    avFrame->height,
+                    pFrameYUV420P->data,
+                    pFrameYUV420P->linesize);
+
+            //开始渲染
+
+            //直接返回给Java层进行渲染
+            video->javaCallback->onCallRenderYUV(
+                    video->avCodecContext->width,
+                    video->avCodecContext->height,
+                    avFrame->data[0],
+                    avFrame->data[1],
+                    avFrame->data[1]);
+
+            av_frame_free(&pFrameYUV420P);
+            av_free(pFrameYUV420P);
+            av_free(buffer);
+            sws_freeContext(sws_ctx);
+
+
+        }
+
+
         av_frame_free(&avFrame);
-        av_free(avPacket);
-        avPacket = NULL;
+        av_free(avFrame);
+        avFrame = NULL;
 
 
         av_packet_free(&avPacket);
@@ -124,11 +204,11 @@ void MYCVideo::release() {
         avCodecContext = NULL;
     }
 
-    if(playStatus != NULL) {
+    if (playStatus != NULL) {
         playStatus = NULL;
     }
 
-    if(javaCallback != NULL) {
+    if (javaCallback != NULL) {
         javaCallback = NULL;
     }
 
