@@ -11,11 +11,12 @@ MYCAudio::MYCAudio(MYCPlayStatus *playStatus, int sample_rate, MYCJavaCallback *
     this->queue = new MYCQueue(playStatus);
     this->sample_rate = sample_rate;
     buffer = static_cast<uint8_t *>(av_malloc(sample_rate * 2 * 2));
+    pthread_mutex_init(&codecMutex, NULL);
 
 }
 
 MYCAudio::~MYCAudio() {
-
+    pthread_mutex_destroy(&codecMutex);
 }
 
 
@@ -23,6 +24,7 @@ void *decodePlay(void *data) {
     MYCAudio *mycAudio = (MYCAudio *) (data);
     mycAudio->initOpenSLES();
     pthread_exit(&mycAudio->thread_play);
+
 
 }
 
@@ -72,11 +74,14 @@ int MYCAudio::resampleAudio() {
             continue;
         }
 
+
+        pthread_mutex_lock(&codecMutex);
         ret = avcodec_send_packet(avCodecContext, avPacket);
         if (ret != 0) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+            pthread_mutex_unlock(&codecMutex);
             continue;
         }
 
@@ -117,6 +122,7 @@ int MYCAudio::resampleAudio() {
                     swr_free(&swr_ctx);
                     swr_ctx = NULL;
                 }
+                pthread_mutex_unlock(&codecMutex);
                 continue;
             }
 
@@ -149,6 +155,7 @@ int MYCAudio::resampleAudio() {
             avFrame = NULL;
             swr_free(&swr_ctx);
             swr_ctx = NULL;
+            pthread_mutex_unlock(&codecMutex);
             break;
 
         } else {
@@ -159,6 +166,7 @@ int MYCAudio::resampleAudio() {
             av_frame_free(&avFrame);
             av_free(avFrame);
             avFrame = NULL;
+            pthread_mutex_unlock(&codecMutex);
             continue;
         }
 

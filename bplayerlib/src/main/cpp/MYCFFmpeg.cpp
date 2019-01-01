@@ -184,11 +184,11 @@ void MYCFFmpeg::start() {
             continue;
         }
 
-//        if (mycAudio->queue->getQueueSize() > 40) {
-//            //队列只保存40帧，避免文件小的时候一下子加载完毕
-//            av_usleep(1000 * 100);//100毫秒
-//            continue;
-//        }
+        if (mycAudio->queue->getQueueSize() > 40) {
+            //队列只保存40帧，避免文件小的时候一下子加载完毕
+            av_usleep(1000 * 100);//100毫秒
+            continue;
+        }
 
         AVPacket *avPacket = av_packet_alloc();
 
@@ -199,6 +199,7 @@ void MYCFFmpeg::start() {
         pthread_mutex_unlock(&seek_mutex);
 
         if (ret == 0) {
+
             if (avPacket->stream_index == mycAudio->streamIndex) {
 
                 mycAudio->queue->putAvpacket(avPacket);
@@ -223,7 +224,10 @@ void MYCFFmpeg::start() {
                     av_usleep(1000 * 100);//100毫秒
                     continue;
                 } else {
-                    playStatus->exit = true;
+                    if (!playStatus->seek) {
+                        av_usleep(1000 * 100);
+                        playStatus->exit = true;
+                    }
                     break;
                 }
 
@@ -245,6 +249,11 @@ void MYCFFmpeg::start() {
 
 void MYCFFmpeg::pause() {
 
+    if (playStatus != NULL) {
+        playStatus->pause = true;
+    }
+
+
     if (mycAudio != NULL) {
         mycAudio->puase();
     }
@@ -252,6 +261,10 @@ void MYCFFmpeg::pause() {
 }
 
 void MYCFFmpeg::resume() {
+    if (playStatus != NULL) {
+        playStatus->pause = false;
+    }
+
     if (mycAudio != NULL) {
         mycAudio->resume();
     }
@@ -328,20 +341,28 @@ void MYCFFmpeg::seek(int64_t secds) {
     }
 
     if (secds >= 0 && secds <= duration) {
-
+        playStatus->seek = true;
+        pthread_mutex_lock(&seek_mutex);
+        int64_t rel = secds * AV_TIME_BASE;
+        avformat_seek_file(avFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
         if (mycAudio != NULL) {
-
-            playStatus->seek = true;
             mycAudio->queue->clearAvPacket();
             mycAudio->clock = 0;
             mycAudio->last_time = 0;
-            pthread_mutex_lock(&seek_mutex);
-            int64_t rel = secds * AV_TIME_BASE;
-            avformat_seek_file(avFormatContext, -1, INT64_MIN, rel, INT64_MAX, 0);
-            pthread_mutex_unlock(&seek_mutex);
-            playStatus->seek = false;
-
+            pthread_mutex_lock(&mycAudio->codecMutex);
+            avcodec_flush_buffers(mycAudio->avCodecContext);
+            pthread_mutex_unlock(&mycAudio->codecMutex);
         }
+
+        if (video != NULL) {
+            video->queue->clearAvPacket();
+            video->clock = 0;
+            pthread_mutex_lock(&video->codecMutex);
+            avcodec_flush_buffers(video->avCodecContext);
+            pthread_mutex_unlock(&video->codecMutex);
+        }
+        pthread_mutex_unlock(&seek_mutex);
+        playStatus->seek = false;
     }
 
 

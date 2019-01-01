@@ -39,6 +39,8 @@ public:
     //默认延迟时间，也就是一帧视频播放事件 如果一秒25帧，就是0.04秒
     double defaultDelayTime = 0.04;
 
+    pthread_mutex_t codecMutex;
+
 
 public:
     MYCVideo(MYCPlayStatus *playStatus, MYCJavaCallback *javaCallback);

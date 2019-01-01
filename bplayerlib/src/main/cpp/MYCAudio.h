@@ -72,6 +72,8 @@ public:
     //缓冲队列接口
     SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
 
+    pthread_mutex_t codecMutex;
+
 
 public:
     MYCAudio(MYCPlayStatus *playStatus, int sample_rate, MYCJavaCallback *callback);

@@ -19,12 +19,12 @@ MYCVideo::MYCVideo(MYCPlayStatus *playStatus, MYCJavaCallback *javaCallback) {
     this->playStatus = playStatus;
     this->javaCallback = javaCallback;
     queue = new MYCQueue(playStatus);
-
+    pthread_mutex_init(&codecMutex, NULL);
 
 }
 
 MYCVideo::~MYCVideo() {
-
+    pthread_mutex_destroy(&codecMutex);
 
 }
 
@@ -36,6 +36,11 @@ void *callPlayVideo(void *data) {
 
 
         if (video->playStatus->seek) {
+            av_usleep(1000 * 100);//100毫秒
+            continue;
+        }
+
+        if (video->playStatus->pause) {
             av_usleep(1000 * 100);//100毫秒
             continue;
         }
@@ -67,11 +72,15 @@ void *callPlayVideo(void *data) {
         }
 
 
+        //由于其他地方用到CodeContext,要加锁
+
+        pthread_mutex_lock(&video->codecMutex);
         //软解码
         if (avcodec_send_packet(video->avCodecContext, avPacket) != 0) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
+            pthread_mutex_unlock(&video->codecMutex);
             continue;
         }
 
@@ -85,7 +94,7 @@ void *callPlayVideo(void *data) {
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
-
+            pthread_mutex_unlock(&video->codecMutex);
             continue;
         }
 
@@ -146,6 +155,7 @@ void *callPlayVideo(void *data) {
                 av_frame_free(&pFrameYUV420P);
                 av_free(pFrameYUV420P);
                 av_free(buffer);
+                pthread_mutex_unlock(&video->codecMutex);
                 continue;
             }
 
@@ -189,7 +199,7 @@ void *callPlayVideo(void *data) {
         av_packet_free(&avPacket);
         av_free(avPacket);
         avPacket = NULL;
-
+        pthread_mutex_unlock(&video->codecMutex);
     }
 
     pthread_exit(&video->thread_play);
@@ -208,9 +218,11 @@ void MYCVideo::release() {
     }
 
     if (avCodecContext != NULL) {
+        pthread_mutex_lock(&codecMutex);
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
         avCodecContext = NULL;
+        pthread_mutex_unlock(&codecMutex);
     }
 
     if (playStatus != NULL) {
@@ -266,9 +278,9 @@ double MYCVideo::getDelayTime(double diff) {
 
     }
 
-    if (diff >= 0.5) {//视频延后了
+    if (diff >= 0.3) {//视频延后了
         delayTime = 0;
-    } else if (diff <= -0.5) {
+    } else if (diff <= -0.3) {
         //延迟比较严重，以两倍速度来休眠
         delayTime = defaultDelayTime * 2;
     }
