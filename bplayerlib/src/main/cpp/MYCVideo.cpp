@@ -96,6 +96,7 @@ void *callPlayVideo(void *data) {
             LOGE("当前视频是：YUV420P 格式")
 
 
+            //音视频同步
             double diff = video->getFrameDiffTime(avFrame);
             LOGE("当前视频音频时间差：%f", diff);
 
@@ -158,6 +159,10 @@ void *callPlayVideo(void *data) {
                     pFrameYUV420P->linesize);
 
             //开始渲染
+            //音视频同步
+            double diff = video->getFrameDiffTime(pFrameYUV420P);
+            LOGE("当前视频音频时间差：%f", diff);
+            av_usleep(video->getDelayTime(diff) * 1000 * 1000);
 
             //直接返回给Java层进行渲染
             video->javaCallback->onCallRenderYUV(
