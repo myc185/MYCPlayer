@@ -11,6 +11,7 @@ import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
 import com.bosma.bplayerlib.listener.OnTimeInfoListener;
 import com.bosma.bplayerlib.log.MyLog;
+import com.bosma.bplayerlib.opengl.YCGLSurfaceView;
 
 /**
  * moyc
@@ -52,6 +53,8 @@ public class MYCPlayer {
 
     private static TimeInfoBean timeInfoBean;
 
+    private YCGLSurfaceView ycglSurfaceView;
+
 
     public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
@@ -75,6 +78,10 @@ public class MYCPlayer {
 
     public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
         this.onCompleteListener = onCompleteListener;
+    }
+
+    public void setYcglSurfaceView(YCGLSurfaceView ycglSurfaceView) {
+        this.ycglSurfaceView = ycglSurfaceView;
     }
 
     public MYCPlayer() {
@@ -229,8 +236,11 @@ public class MYCPlayer {
     }
 
     public void onCallRenderYUV(int width, int height, byte[] y, byte[] u, byte[] v) {
-
         MyLog.d("获取到视频的YUV数据");
+        if (ycglSurfaceView != null) {
+            ycglSurfaceView.setYUVData(width, height, y, u, v);
+        }
+
 
     }
 

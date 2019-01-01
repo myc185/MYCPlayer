@@ -26,6 +26,7 @@ import com.bosma.bplayerlib.listener.OnPauseResumeListener;
 import com.bosma.bplayerlib.listener.OnPreparedListener;
 import com.bosma.bplayerlib.listener.OnTimeInfoListener;
 import com.bosma.bplayerlib.log.MyLog;
+import com.bosma.bplayerlib.opengl.YCGLSurfaceView;
 import com.bosma.bplayerlib.player.MYCPlayer;
 import com.bosma.bplayerlib.util.TimeUtil;
 
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private int positionTime = 0;
     private boolean isSeekBarTime = false;
 
+    private YCGLSurfaceView ycglSurfaceView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
         mTvVolume = findViewById(R.id.tv_vlume);
         mSeekBarTime = findViewById(R.id.sb_seekbar_time);
         mSeekBarVolume = findViewById(R.id.sb_seekbar_vloume);
+        ycglSurfaceView = findViewById(R.id.yv_urfaceview);
         mycPlayer = new MYCPlayer();
+        mycPlayer.setYcglSurfaceView(ycglSurfaceView);
         mycPlayer.setVolume(50);
         mTvVolume.setText("Volume:" + mycPlayer.getVolumePercent() + "%");
         mSeekBarVolume.setProgress(mycPlayer.getVolumePercent());

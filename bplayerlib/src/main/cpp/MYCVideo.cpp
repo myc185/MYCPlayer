@@ -59,7 +59,6 @@ void *callPlayVideo(void *data) {
         if (video->queue->getAvpacket(avPacket) != 0) {
             //解码渲染
             LOGE("线程中获取视频 AVPacket")
-            av_usleep(1000 * 100);//100毫秒
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -70,7 +69,6 @@ void *callPlayVideo(void *data) {
 
         //软解码
         if (avcodec_send_packet(video->avCodecContext, avPacket) != 0) {
-            av_usleep(1000 * 100);//100毫秒
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -93,9 +91,8 @@ void *callPlayVideo(void *data) {
 
         LOGE("子线程解码一个AvFrame 成功");
 
-
         //YUV转换和获取
-        if (avFrame->format != AV_PIX_FMT_YUV420P) {
+        if (avFrame->format == AV_PIX_FMT_YUV420P) {
             LOGE("当前视频是：YUV420P 格式")
             //直接返回给Java层进行渲染
             video->javaCallback->onCallRenderYUV(
@@ -103,7 +100,7 @@ void *callPlayVideo(void *data) {
                     video->avCodecContext->height,
                     avFrame->data[0],
                     avFrame->data[1],
-                    avFrame->data[1]);
+                    avFrame->data[2]);
         } else {
             LOGE("当前视频不是YUV420P 格式")
             //转成420
@@ -161,7 +158,7 @@ void *callPlayVideo(void *data) {
                     video->avCodecContext->height,
                     avFrame->data[0],
                     avFrame->data[1],
-                    avFrame->data[1]);
+                    avFrame->data[2]);
 
             av_frame_free(&pFrameYUV420P);
             av_free(pFrameYUV420P);

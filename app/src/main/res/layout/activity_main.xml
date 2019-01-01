@@ -7,6 +7,11 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <com.bosma.bplayerlib.opengl.YCGLSurfaceView
+        android:id="@+id/yv_urfaceview"
+        android:layout_width="match_parent"
+        android:layout_height="250dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dip"
+        android:layout_marginTop="10dip"
         android:text="00:00 / 00:00"
         android:textColor="#222222"
         android:textSize="18sp" />
@@ -78,7 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dip"
+        android:layout_marginTop="10dip"
         android:text="volume"
         android:textColor="#222222"
         android:textSize="18sp" />
@@ -95,6 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/btn_left"
             android:layout_width="0dip"
