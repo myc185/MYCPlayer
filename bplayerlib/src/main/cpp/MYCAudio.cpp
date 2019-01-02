@@ -237,7 +237,7 @@ void MYCAudio::initOpenSLES() {
     SLDataFormat_PCM pcm = {
             SL_DATAFORMAT_PCM,
             2,
-            getCurrentSampleRateForOpensles(sample_rate),//采样率
+            static_cast<SLuint32>(getCurrentSampleRateForOpensles(sample_rate)),//采样率
             SL_PCMSAMPLEFORMAT_FIXED_16,//位数
             SL_PCMSAMPLEFORMAT_FIXED_16,//位数
             SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,//左前方右前方
