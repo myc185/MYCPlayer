@@ -168,8 +168,21 @@ void MYCFFmpeg::start() {
         callbackJava->onCallError(THREAD_CHILD, 1009, "video is null");
         return;
     }
-
+    supportMediacodec = false;
     video->audio = mycAudio;
+
+    const char *codecName = ((const AVCodec *) video->avCodecContext->codec)->name;
+
+    if (supportMediacodec = callbackJava->onCallIsSupportVideo(codecName)) {
+        if (LOG_DEBUG) {
+            LOGE("video is support media decode");
+        }
+
+    }
+
+    if (supportMediacodec) {
+        video->codectype = CODEC_MEDIACODEC;
+    }
 
 
     //刚开始解码是没数据的，但是获取数据的时候会阻塞，因此可以在这里提前调用

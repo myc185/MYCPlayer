@@ -9,6 +9,12 @@
 #include "MYCJavaCallback.h"
 #include "MYCAudio.h"
 
+//软解码
+#define CODEC_YUV 0
+
+//硬解码
+#define CODEC_MEDIACODEC 1
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/time.h>
@@ -40,6 +46,9 @@ public:
     double defaultDelayTime = 0.04;
 
     pthread_mutex_t codecMutex;
+
+    //解码类型
+    int codectype = CODEC_YUV;
 
 
 public:

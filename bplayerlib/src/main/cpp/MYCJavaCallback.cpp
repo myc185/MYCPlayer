@@ -24,6 +24,8 @@ MYCJavaCallback::MYCJavaCallback(JavaVM *jvm, JNIEnv *env, jobject *obj) {
     this->jmid_error = env->GetMethodID(jclz, "onCallError", "(ILjava/lang/String;)V");
     this->jmid_complete = env->GetMethodID(jclz, "onCallComplete", "()V");
     this->jmid_renderyuv = env->GetMethodID(jclz, "onCallRenderYUV", "(II[B[B[B)V");
+    this->jmid_supportvideo = env->GetMethodID(jclz, "onCallIsSupportMediaCodec",
+                                               "(Ljava/lang/String;)Z");
 
 
 }
@@ -153,4 +155,22 @@ MYCJavaCallback::onCallRenderYUV(int width, int height, uint8_t *fy, uint8_t *fu
     javaVM->DetachCurrentThread();
 
 
+}
+
+bool MYCJavaCallback::onCallIsSupportVideo(const char *ffcodename) {
+    JNIEnv *jniEn;
+    bool support = false;
+    if (javaVM->AttachCurrentThread(&jniEn, 0) != JNI_OK) {
+        if (LOG_DEBUG) {
+            LOGE("Get child thread jnienv error");
+        }
+        return support;
+    }
+
+    jstring jtype = jniEn->NewStringUTF(ffcodename);
+    support = jniEn->CallBooleanMethod(jobj, jmid_supportvideo, jtype);
+    jniEn->DeleteLocalRef(jtype);
+    javaVM->DetachCurrentThread();
+
+    return support;
 }
