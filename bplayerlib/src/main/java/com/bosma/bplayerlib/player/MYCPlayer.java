@@ -12,6 +12,7 @@ import com.bosma.bplayerlib.listener.OnPreparedListener;
 import com.bosma.bplayerlib.listener.OnTimeInfoListener;
 import com.bosma.bplayerlib.log.MyLog;
 import com.bosma.bplayerlib.opengl.YCGLSurfaceView;
+import com.bosma.bplayerlib.util.YCVIdeoSupporttUtil;
 
 /**
  * moyc
@@ -240,9 +241,12 @@ public class MYCPlayer {
         if (ycglSurfaceView != null) {
             ycglSurfaceView.setYUVData(width, height, y, u, v);
         }
-
-
     }
+
+    public boolean onCallIsSupportMediaCodec(String ffcodecname) {
+        return YCVIdeoSupporttUtil.isSupportCodec(ffcodecname);
+    }
+
 
     private native void n_prepared(String source);
 

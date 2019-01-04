@@ -34,9 +34,11 @@ public:
     int duration = 0;
     pthread_mutex_t seek_mutex;
 
+    bool supportMediacodec = false;
+
 public:
 
-    MYCFFmpeg(MYCPlayStatus *playStatus,MYCJavaCallback *callback, const char *url);
+    MYCFFmpeg(MYCPlayStatus *playStatus, MYCJavaCallback *callback, const char *url);
 
     ~MYCFFmpeg();
 
@@ -52,7 +54,7 @@ public:
 
     void release();
 
-    void seek(int64_t secds) ;
+    void seek(int64_t secds);
 
     void setVolume(int percent);
 
