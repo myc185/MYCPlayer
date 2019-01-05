@@ -173,7 +173,7 @@ void MYCFFmpeg::start() {
 
     const char *codecName = ((const AVCodec *) video->avCodecContext->codec)->name;
 
-    if (supportMediacodec = callbackJava->onCallIsSupportVideo(codecName)) {
+    if (callbackJava->onCallIsSupportVideo(codecName)) {
         if (LOG_DEBUG) {
             LOGE("video is support media decode");
         }

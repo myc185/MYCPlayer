@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.CALL_PHONE},
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         MY_PERMISSIONS_REQUEST_CALL_SDCARD);
                 return;
             } else {
@@ -176,17 +176,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+//        mycPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        mycPlayer.setSource("rtsp://admin:9d5311eb8e5006cb8272@10.168.2.143/0");
 //        mycPlayer.setSource("http://ngcdn004.ncr.cn/live/dszs/index.m3u8");
 //        mycPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index.m3u8");
 //        String path = getInnerSDCardPath() + "/mydream.m4a";
-        String path = getInnerSDCardPath() + "/dakar2_24.mp4";
-        // /storage/emulated/0/mydream.m4a
-        MyLog.d(path);
-        File file = new File(path);
-        if (file.exists()) {
-            mycPlayer.setSource(path);
-        }
+//        String path = getInnerSDCardPath() + "/dakar2_24.mp4";
+//        // /storage/emulated/0/mydream.m4a
+//        MyLog.d(path);
+//        File file = new File(path);
+//        if (file.exists()) {
+//            mycPlayer.setSource(path);
+//        }
 
         mycPlayer.prepared();
 
