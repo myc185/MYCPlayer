@@ -59,7 +59,6 @@ void *callPlayVideo(void *data) {
             }
         }
 
-
         AVPacket *avPacket = av_packet_alloc();
         if (video->queue->getAvpacket(avPacket) != 0) {
             //解码渲染

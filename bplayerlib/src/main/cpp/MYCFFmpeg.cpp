@@ -289,6 +289,7 @@ void MYCFFmpeg::release() {
     }
 
     playStatus->exit = true;
+
     pthread_mutex_lock(&init_mutex);
     int spleepCount = 0;
     while (!exit) {
@@ -320,7 +321,6 @@ void MYCFFmpeg::release() {
         delete (video);
         video = NULL;
     }
-
 
     if (LOG_DEBUG) {
         LOGE("释放 封装格式上下文");
